@@ -1,0 +1,93 @@
+import React, { useState, useEffect } from 'react';
+import { showAlert } from '../utils/alert';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import Recorder from '../components/Recorder';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+
+const RecordPage = () => {
+    const { topicId } = useParams();
+    const navigate = useNavigate();
+    const [topic, setTopic] = useState(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    // Get current user from localStorage for analysis request
+    const user = JSON.parse(localStorage.getItem('talk2me_user'));
+
+
+
+    useEffect(() => {
+        // Fetch topic details
+        const fetchTopic = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8000/topics/${topicId}`);
+                setTopic(response.data);
+            } catch (error) {
+                console.error("Failed to fetch topic", error);
+                // Fallback
+                setTopic({ id: topicId, title: "Loading Topic...", description: "Please wait." });
+            }
+        };
+        fetchTopic();
+    }, [topicId]);
+
+    const handleRecordingComplete = async (audioBlob) => {
+        setIsAnalyzing(true);
+
+        // Create FormData
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'speech.webm');
+        formData.append('topic_id', topicId);
+
+        try {
+            const response = await axios.post('http://localhost:8000/analyze', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            // Navigate to results with data
+            // In a real app, we might save to DB and navigate to /results/:attemptId
+            // For now, pass state
+            navigate('/results', { state: { results: response.data, topic } });
+
+        } catch (error) {
+            console.error("Analysis failed", error);
+            showAlert('error', 'Analysis failed. Please try again.');
+            setIsAnalyzing(false);
+        }
+    };
+
+    if (!topic) return <div className="p-10 text-center">Loading...</div>;
+
+    return (
+        <div className="min-h-screen bg-gray-50 p-8">
+            <div className="max-w-4xl mx-auto">
+                <button
+                    onClick={() => navigate('/')}
+                    className="flex items-center text-gray-500 hover:text-gray-900 mb-8 transition-colors"
+                >
+                    <ArrowLeft size={20} className="mr-2" /> Back to Topics
+                </button>
+
+                <div className="text-center mb-12">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-4">{topic.title}</h1>
+                    <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                        {topic.description}
+                    </p>
+                </div>
+
+                {isAnalyzing ? (
+                    <div className="flex flex-col items-center justify-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100">
+                        <Loader2 size={48} className="text-indigo-600 animate-spin mb-4" />
+                        <h3 className="text-xl font-semibold text-gray-900">Analyzing your speech...</h3>
+                        <p className="text-gray-500 mt-2">Checking pace, clarity, and tone.</p>
+                    </div>
+                ) : (
+                    <Recorder onRecordingComplete={handleRecordingComplete} />
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default RecordPage;

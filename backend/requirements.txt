@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+python-multipart
+openai
+python-dotenv
+librosa
+numpy
+scipy
+nltk
+passlib[bcrypt]
+python-jose[cryptography]
+bcrypt
+email-validator
