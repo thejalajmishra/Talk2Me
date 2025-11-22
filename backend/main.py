@@ -10,7 +10,8 @@ from schemas import (
     Category, CategoryCreate, CategoryUpdate,
     UserSignup, UserLogin, Token, UserResponse, UserUpdate,
     AttemptResponse,
-    ContactMessageCreate, ContactMessageResponse
+    ContactMessageCreate, ContactMessageResponse,
+    GoogleAuthRequest, GitHubAuthRequest
 )
 from services.topics import get_all_topics, get_topic_by_id, create_topic, delete_topic, create_custom_topic
 from services.categories import (
@@ -99,6 +100,128 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    # Create access token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": str(user.id)}, expires_delta=access_token_expires
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_superadmin": user.is_superadmin
+        }
+    }
+
+@app.post("/auth/google", response_model=Token)
+def google_auth(auth_request: GoogleAuthRequest, db: Session = Depends(get_db)):
+    # Verify Google Token
+    from auth import verify_google_token
+    google_user = verify_google_token(auth_request.token)
+    
+    if not google_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google token"
+        )
+    
+    email = google_user.get('email')
+    name = google_user.get('name')
+    
+    # Check if user exists
+    user = db.query(User).filter(User.email == email).first()
+    
+    if not user:
+        # Create new user
+        # Generate a unique username if needed, for now using email prefix or random
+        username = email.split('@')[0]
+        # Check if username exists
+        if db.query(User).filter(User.username == username).first():
+            import random
+            username = f"{username}{random.randint(1000, 9999)}"
+            
+        user = User(
+            username=username,
+            email=email,
+            hashed_password=None, # No password for OAuth users
+            is_superadmin=False
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    
+    # Create access token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": str(user.id)}, expires_delta=access_token_expires
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_superadmin": user.is_superadmin
+        }
+    }
+
+@app.post("/auth/github", response_model=Token)
+def github_auth(auth_request: GitHubAuthRequest, db: Session = Depends(get_db)):
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Received GitHub auth request with code: {auth_request.code[:10]}...")
+    
+    # Verify GitHub Code
+    from auth import verify_github_code
+    github_user = verify_github_code(auth_request.code)
+    
+    if not github_user:
+        logger.error("GitHub user verification failed")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid GitHub code"
+        )
+    
+    logger.info(f"GitHub user verified: {github_user}")
+    
+    email = github_user.get('email')
+    github_username = github_user.get('login')
+    
+    if not email:
+        logger.error("No email found in GitHub user data")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="GitHub account must have a verified email"
+        )
+    
+    # Check if user exists
+    user = db.query(User).filter(User.email == email).first()
+    
+    if not user:
+        # Create new user
+        # Use GitHub username or email prefix
+        username = github_username or email.split('@')[0]
+        # Check if username exists
+        if db.query(User).filter(User.username == username).first():
+            import random
+            username = f"{username}{random.randint(1000, 9999)}"
+            
+        user = User(
+            username=username,
+            email=email,
+            hashed_password=None, # No password for OAuth users
+            is_superadmin=False
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
     
     # Create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
