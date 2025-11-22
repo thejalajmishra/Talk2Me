@@ -43,7 +43,7 @@ const RecordPage = () => {
 
         // Create FormData
         const formData = new FormData();
-        formData.append('file', audioBlob, 'speech.webm');
+        formData.append('audio', audioBlob, 'speech.webm');
         formData.append('topic_id', topicId);
 
         // Attach the logged‑in user's ID so the backend can associate the attempt
