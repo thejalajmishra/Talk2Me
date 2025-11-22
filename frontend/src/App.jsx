@@ -23,6 +23,7 @@ import SignupPage from './pages/SignupPage';
 import WelcomeHome from './pages/WelcomeHome';
 import LearningMaterial from './pages/LearningMaterial';
 import InsightsPage from './pages/InsightsPage';
+import GitHubCallback from './pages/GitHubCallback';
 
 function App() {
   const storedUser = localStorage.getItem('talk2me_user');
@@ -247,6 +248,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage user={user} />} />
             <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
             <Route path="/signup" element={<SignupPage onLogin={handleLogin} />} />
+            <Route path="/auth/github/callback" element={<GitHubCallback />} />
 
             {/* Protected User Routes */}
             <Route path="/welcome" element={<ProtectedRoute><WelcomeHome user={user} /></ProtectedRoute>} />
