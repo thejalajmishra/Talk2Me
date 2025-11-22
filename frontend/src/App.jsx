@@ -6,10 +6,12 @@ import AdminTopics from './pages/admin/AdminTopics';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminAttempts from './pages/admin/AdminAttempts';
+import AdminContacts from './pages/admin/AdminContacts';
 import HomePage from './pages/HomePage';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 import TopicsPage from './pages/TopicsPage';
+import CustomTopicPage from './pages/CustomTopicPage';
 
 import RecordPage from './pages/RecordPage';
 import ResultsPage from './pages/ResultsPage';
@@ -49,38 +51,82 @@ function App() {
     );
   };
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <Router>
       <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
         {/* Main Navigation - Only show on non-admin pages */}
-        <nav className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold text-indigo-600">Talk2Me</Link>
-          <div className="space-x-6">
-            <Link to="/topics" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Topics</Link>
-            <Link to="/about" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">About</Link>
-            <Link to="/contact" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Contact</Link>
-            {user ? (
-              <>
-                <Link to="/profile" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Profile</Link>
-                <button onClick={handleLogout} className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Logout</button>
-              </>
-            ) : (
-              <>
-                <Link to="/login" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Login</Link>
-                <Link to="/signup" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Signup</Link>
-              </>
-            )}
-            {user && user.is_superadmin && (
-              <Link to="/admin" className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors">Admin</Link>
-            )}
-          </div>
-        </nav>
-        <Routes>
-          {/* Removed placeholder admin route that blocked admin pages */}
-          {/* Added fallback redirect for unknown routes */}
-// Removed placeholder fallback route
+        <nav className="bg-white shadow-sm sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              {/* Logo */}
+              <Link to="/" className="text-2xl font-bold text-indigo-600 flex-shrink-0">
+                Talk2Me
+              </Link>
 
-        </Routes>
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center space-x-6">
+                <Link to="/topics" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Topics</Link>
+                <Link to="/about" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">About</Link>
+                <Link to="/contact" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Contact</Link>
+                {user ? (
+                  <>
+                    <Link to="/profile" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Profile</Link>
+                    {user.is_superadmin && (
+                      <Link to="/admin" className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors">Admin</Link>
+                    )}
+                    <button onClick={handleLogout} className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Logout</button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Login</Link>
+                    <Link to="/signup" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium">Sign Up</Link>
+                  </>
+                )}
+              </div>
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {mobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-gray-200 bg-white">
+              <div className="px-4 py-3 space-y-3">
+                <Link to="/topics" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Topics</Link>
+                <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">About</Link>
+                <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Contact</Link>
+                {user ? (
+                  <>
+                    <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Profile</Link>
+                    {user.is_superadmin && (
+                      <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="block text-indigo-600 hover:text-indigo-800 font-medium py-2">Admin</Link>
+                    )}
+                    <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="block w-full text-left text-gray-700 hover:text-indigo-600 font-medium py-2">Logout</button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Login</Link>
+                    <Link to="/signup" onClick={() => setMobileMenuOpen(false)} className="block bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium text-center">Sign Up</Link>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </nav>
 
         <main>
           <Routes>
@@ -89,6 +135,7 @@ function App() {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/topics" element={<TopicsPage />} />
+            <Route path="/topics/custom" element={<CustomTopicPage user={user} />} />
             <Route path="/record/:topicId" element={<RecordPage />} />
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
@@ -102,6 +149,7 @@ function App() {
             <Route path="/admin/categories" element={<AdminRoute><AdminCategories user={user} /></AdminRoute>} />
             <Route path="/admin/users" element={<AdminRoute><AdminUsers user={user} /></AdminRoute>} />
             <Route path="/admin/attempts" element={<AdminRoute><AdminAttempts user={user} /></AdminRoute>} />
+            <Route path="/admin/contacts" element={<AdminRoute><AdminContacts user={user} /></AdminRoute>} />
           </Routes>
         </main>
       </div>

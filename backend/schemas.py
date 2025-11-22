@@ -30,6 +30,11 @@ class TopicBase(BaseModel):
 class TopicCreate(TopicBase):
     pass
 
+class CustomTopicCreate(BaseModel):
+    title: str
+    category_id: int
+    description: str
+
 class Topic(TopicBase):
     id: int
     category: Optional[Category] = None
@@ -82,6 +87,23 @@ class AttemptResponse(BaseModel):
     created_at: datetime
     user: Optional[UserResponse] = None
     topic: Optional[Topic] = None
+
+    class Config:
+        from_attributes = True
+# Contact Message Schemas
+class ContactMessageCreate(BaseModel):
+    name: str
+    email: EmailStr
+    subject: Optional[str] = None
+    message: str
+
+class ContactMessageResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    subject: Optional[str] = None
+    message: str
+    created_at: datetime
 
     class Config:
         from_attributes = True

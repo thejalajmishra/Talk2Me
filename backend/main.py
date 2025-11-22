@@ -6,12 +6,13 @@ from typing import List
 from database import engine, get_db
 from models import Base, User
 from schemas import (
-    Topic, TopicCreate, 
+    Topic, TopicCreate, CustomTopicCreate,
     Category, CategoryCreate, CategoryUpdate,
     UserSignup, UserLogin, Token, UserResponse, UserUpdate,
-    AttemptResponse
+    AttemptResponse,
+    ContactMessageCreate, ContactMessageResponse
 )
-from services.topics import get_all_topics, get_topic_by_id, create_topic, delete_topic
+from services.topics import get_all_topics, get_topic_by_id, create_topic, delete_topic, create_custom_topic
 from services.categories import (
     get_all_categories, get_category_by_id, create_category, 
     update_category, delete_category
@@ -20,6 +21,7 @@ from services.users import get_all_users, get_user_by_id, update_user, delete_us
 from services.attempts import get_all_attempts, delete_attempt
 from services.analysis import analyze_audio
 from services.leaderboard import get_leaderboard
+from services.contact import create_contact_message, get_all_contact_messages
 from auth import get_password_hash, verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from dependencies import get_current_user, get_current_admin
 from datetime import timedelta
@@ -121,11 +123,27 @@ def get_me(current_user: User = Depends(get_current_user)):
 
 @app.get("/topics", response_model=List[Topic])
 def read_topics(db: Session = Depends(get_db)):
-    return get_all_topics(db)
+    # Exclude custom topics from public listing
+    return get_all_topics(db, include_custom=False)
 
 @app.post("/topics", response_model=Topic)
 def add_topic(topic: TopicCreate, db: Session = Depends(get_db), current_admin: User = Depends(get_current_admin)):
     return create_topic(db, topic)
+
+@app.post("/topics/custom", response_model=Topic)
+def add_custom_topic(
+    topic_data: CustomTopicCreate, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    """Create a custom topic by a user"""
+    return create_custom_topic(
+        db, 
+        title=topic_data.title,
+        category_id=topic_data.category_id,
+        description=topic_data.description,
+        user_id=current_user.id
+    )
 
 @app.get("/topics/{topic_id}", response_model=Topic)
 def read_topic(topic_id: int, db: Session = Depends(get_db)):
@@ -177,6 +195,12 @@ def remove_category(category_id: int, db: Session = Depends(get_db), current_adm
         raise HTTPException(status_code=400, detail="Cannot delete category with existing topics")
     return {"message": "Category deleted"}
 
+# Admin Topics endpoint (includes custom topics)
+@app.get("/admin/topics/all", response_model=List[Topic])
+def read_all_topics_admin(db: Session = Depends(get_db), current_admin: User = Depends(get_current_admin)):
+    """Get all topics including custom ones for admin panel"""
+    return get_all_topics(db, include_custom=True)
+
 # User management endpoints
 @app.get("/admin/users", response_model=List[UserResponse])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_admin: User = Depends(get_current_admin)):
@@ -214,3 +238,19 @@ def remove_attempt(attempt_id: int, db: Session = Depends(get_db), current_admin
     if not result:
         raise HTTPException(status_code=404, detail="Attempt not found")
     return {"message": "Attempt deleted"}
+
+# Contact Message endpoints
+@app.post("/contact", response_model=ContactMessageResponse)
+def submit_contact(contact_data: ContactMessageCreate, db: Session = Depends(get_db)):
+    return create_contact_message(
+        db, 
+        contact_data.name, 
+        contact_data.email, 
+        contact_data.subject, 
+        contact_data.message
+    )
+
+@app.get("/admin/contacts", response_model=List[ContactMessageResponse])
+def read_contacts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_admin: User = Depends(get_current_admin)):
+    return get_all_contact_messages(db, skip, limit)
+

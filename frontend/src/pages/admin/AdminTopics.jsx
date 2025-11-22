@@ -19,7 +19,10 @@ const AdminTopics = ({ user }) => {
 
     const fetchTopics = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/topics');
+            // Use admin endpoint to get all topics including custom ones
+            const response = await axios.get('http://localhost:8000/admin/topics/all', {
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
             setTopics(response.data);
         } catch (error) {
             console.error("Failed to fetch topics", error);
@@ -129,14 +132,23 @@ const AdminTopics = ({ user }) => {
                     {topics.map((topic) => (
                         <div key={topic.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-indigo-300 transition-colors">
                             <div className="flex-1">
-                                <h3 className="font-semibold text-gray-900">{topic.title}</h3>
+                                <div className="flex items-center space-x-2">
+                                    <h3 className="font-semibold text-gray-900">{topic.title}</h3>
+                                    {topic.is_custom && (
+                                        <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700 border border-purple-200 flex items-center">
+                                            <Sparkles size={12} className="mr-1" />
+                                            Custom
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="flex items-center space-x-3 mt-1">
                                     <span className="text-sm text-gray-600">
                                         {topic.category?.name || 'No Category'}
                                     </span>
                                     <span className={`text-xs px-2 py-1 rounded-full flex items-center ${topic.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
                                             topic.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                                                'bg-red-100 text-red-700'
+                                                topic.difficulty === 'Hard' ? 'bg-red-100 text-red-700' :
+                                                    'bg-gray-100 text-gray-700'
                                         }`}>
                                         <Sparkles size={12} className="mr-1" />
                                         {topic.difficulty}
