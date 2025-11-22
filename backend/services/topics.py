@@ -34,6 +34,19 @@ def create_custom_topic(db: Session, title: str, category_id: int, description: 
     db.refresh(db_topic)
     return db_topic
 
+def update_topic(db: Session, topic_id: int, topic_data: TopicCreate):
+    """Update an existing topic."""
+    topic = db.query(Topic).filter(Topic.id == topic_id).first()
+    if topic:
+        topic.title = topic_data.title
+        topic.category_id = topic_data.category_id
+        topic.difficulty = topic_data.difficulty
+        topic.description = topic_data.description
+        db.commit()
+        db.refresh(topic)
+        return topic
+    return None
+
 def delete_topic(db: Session, topic_id: int):
     topic = db.query(Topic).filter(Topic.id == topic_id).first()
     if topic:

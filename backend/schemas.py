@@ -54,6 +54,7 @@ class Topic(TopicBase):
     id: int
     is_custom: bool
     created_by: Optional[int] = None
+    category: Optional['Category'] = None
     
     class Config:
         orm_mode = True
@@ -104,3 +105,6 @@ class ContactMessageResponse(ContactMessageCreate):
 
     class Config:
         orm_mode = True
+
+# Update forward references
+Topic.update_forward_refs()

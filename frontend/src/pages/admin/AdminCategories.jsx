@@ -40,9 +40,10 @@ const AdminCategories = ({ user }) => {
             }
             setNewCategory({ name: '', description: '' });
             fetchCategories();
+            showAlert('success', editingCategory ? 'Category updated successfully!' : 'Category created successfully!', 'Success');
         } catch (error) {
             console.error("Failed to save category", error);
-            alert(error.response?.data?.detail || "Failed to save category");
+            showAlert('error', error.response?.data?.detail || 'Failed to save category', 'Error');
         }
     };
 
@@ -52,15 +53,17 @@ const AdminCategories = ({ user }) => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this category?")) {
+        const result = await showAlert('warning', 'Are you sure you want to delete this category? This action cannot be undone.', 'Delete Category', true);
+        if (result.isConfirmed) {
             try {
                 await axios.delete(`http://localhost:8000/categories/${id}`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 fetchCategories();
+                showAlert('success', 'Category deleted successfully!', 'Deleted');
             } catch (error) {
                 console.error("Failed to delete category", error);
-                alert(error.response?.data?.detail || "Cannot delete category with existing topics");
+                showAlert('error', error.response?.data?.detail || 'Cannot delete category with existing topics', 'Error');
             }
         }
     };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminTopics from './pages/admin/AdminTopics';
@@ -19,28 +19,34 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
-import WelcomeHome from './pages/WelcomeHome';
-import LearningMaterial from './pages/LearningMaterial';
-import InsightsPage from './pages/InsightsPage';
 import GitHubCallback from './pages/GitHubCallback';
 
 function App() {
   const storedUser = localStorage.getItem('talk2me_user');
   const [user, setUser] = useState(storedUser ? JSON.parse(storedUser) : null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Keep useEffect for future updates if needed but remove initial load logic
   useEffect(() => {
-    // No need to set user here; already initialized
-  }, []);
+    if (user?.is_superadmin) {
+      if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/signup') {
+        navigate('/admin');
+      }
+    }
+  }, [user, location.pathname, navigate]);
 
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem('talk2me_user', JSON.stringify(userData));
+    if (userData.is_superadmin) {
+      navigate('/admin');
+    }
   };
 
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('talk2me_user');
+    navigate('/');
   };
 
   // Protected Admin Route Component
@@ -56,11 +62,12 @@ function App() {
   };
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const showNav = !user?.is_superadmin;
 
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
-        {/* Main Navigation - Only show on non-admin pages */}
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
+      {/* Main Navigation - Only show on non-admin pages */}
+      {showNav && (
         <nav className="bg-white shadow-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
@@ -77,9 +84,6 @@ function App() {
                 {user ? (
                   <>
                     <Link to="/profile" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Profile</Link>
-                    {user.is_superadmin && (
-                      <Link to="/admin" className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors">Admin</Link>
-                    )}
                     <button onClick={handleLogout} className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Logout</button>
                   </>
                 ) : (
@@ -116,9 +120,6 @@ function App() {
                 {user ? (
                   <>
                     <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Profile</Link>
-                    {user.is_superadmin && (
-                      <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="block text-indigo-600 hover:text-indigo-800 font-medium py-2">Admin</Link>
-                    )}
                     <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="block w-full text-left text-gray-700 hover:text-indigo-600 font-medium py-2">Logout</button>
                   </>
                 ) : (
@@ -131,34 +132,34 @@ function App() {
             </div>
           )}
         </nav>
+      )}
 
-        <main>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/contact" element={<ContactUs />} />
-            <Route path="/topics" element={<TopicsPage />} />
-            <Route path="/topics/custom" element={<CustomTopicPage user={user} />} />
-            <Route path="/record/:topicId" element={<RecordPage />} />
-            <Route path="/results" element={<ResultsPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/profile" element={<ProfilePage user={user} />} />
-            <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-            <Route path="/signup" element={<SignupPage onLogin={handleLogin} />} />
-            <Route path="/auth/github/callback" element={<GitHubCallback />} />
+      <main>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/topics" element={<TopicsPage />} />
+          <Route path="/topics/custom" element={<CustomTopicPage user={user} />} />
+          <Route path="/record/:topicId" element={<RecordPage />} />
+          <Route path="/results" element={<ResultsPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/profile" element={<ProfilePage user={user} onUpdate={handleLogin} />} />
+          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+          <Route path="/signup" element={<SignupPage onLogin={handleLogin} />} />
+          <Route path="/auth/github/callback" element={<GitHubCallback />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminRoute><AdminDashboard user={user} /></AdminRoute>} />
-            <Route path="/admin/topics" element={<AdminRoute><AdminTopics user={user} /></AdminRoute>} />
-            <Route path="/admin/categories" element={<AdminRoute><AdminCategories user={user} /></AdminRoute>} />
-            <Route path="/admin/users" element={<AdminRoute><AdminUsers user={user} /></AdminRoute>} />
-            <Route path="/admin/attempts" element={<AdminRoute><AdminAttempts user={user} /></AdminRoute>} />
-            <Route path="/admin/contacts" element={<AdminRoute><AdminContacts user={user} /></AdminRoute>} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminRoute><AdminDashboard user={user} /></AdminRoute>} />
+          <Route path="/admin/topics" element={<AdminRoute><AdminTopics user={user} /></AdminRoute>} />
+          <Route path="/admin/categories" element={<AdminRoute><AdminCategories user={user} /></AdminRoute>} />
+          <Route path="/admin/users" element={<AdminRoute><AdminUsers user={user} /></AdminRoute>} />
+          <Route path="/admin/attempts" element={<AdminRoute><AdminAttempts user={user} /></AdminRoute>} />
+          <Route path="/admin/contacts" element={<AdminRoute><AdminContacts user={user} /></AdminRoute>} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 

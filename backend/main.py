@@ -13,13 +13,13 @@ from schemas import (
     ContactMessageCreate, ContactMessageResponse,
     GoogleAuthRequest, GitHubAuthRequest
 )
-from services.topics import get_all_topics, get_topic_by_id, create_topic, delete_topic, create_custom_topic
+from services.topics import get_all_topics, get_topic_by_id, create_topic, delete_topic, create_custom_topic, update_topic
 from services.categories import (
     get_all_categories, get_category_by_id, create_category, 
     update_category, delete_category
 )
 from services.users import get_all_users, get_user_by_id, update_user, delete_user, toggle_admin_status
-from services.attempts import get_all_attempts, delete_attempt
+from services.attempts import get_all_attempts, delete_attempt, get_attempts_by_user
 from services.analysis import analyze_audio
 from services.leaderboard import get_leaderboard
 from services.contact import create_contact_message, get_all_contact_messages
@@ -244,6 +244,56 @@ def github_auth(auth_request: GitHubAuthRequest, db: Session = Depends(get_db)):
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
+@app.put("/users/me", response_model=UserResponse)
+def update_my_profile(
+    user_update: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    updated_user = update_user(db, current_user.id, user_update)
+    return updated_user
+
+@app.put("/admin/users/{user_id}", response_model=UserResponse)
+def admin_update_user(
+    user_id: int,
+    user_data: UserUpdate,
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin)
+):
+    updated_user = update_user(db, user_id, user_data)
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return updated_user
+
+@app.post("/admin/users", response_model=UserResponse)
+def admin_create_user(
+    user_data: UserSignup,
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin)
+):
+    # Check if user exists
+    existing_user = db.query(User).filter(
+        (User.email == user_data.email) | (User.username == user_data.username)
+    ).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username or email already registered"
+        )
+    
+    # Create new user
+    hashed_password = get_password_hash(user_data.password)
+    new_user = User(
+        username=user_data.username,
+        email=user_data.email,
+        hashed_password=hashed_password,
+        is_superadmin=False
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
 @app.get("/topics", response_model=List[Topic])
 def read_topics(db: Session = Depends(get_db)):
     # Exclude custom topics from public listing
@@ -271,6 +321,19 @@ def add_custom_topic(
 @app.get("/topics/{topic_id}", response_model=Topic)
 def read_topic(topic_id: int, db: Session = Depends(get_db)):
     return get_topic_by_id(db, topic_id)
+
+@app.put("/topics/{topic_id}", response_model=Topic)
+def edit_topic(
+    topic_id: int, 
+    topic: TopicCreate, 
+    db: Session = Depends(get_db), 
+    current_admin: User = Depends(get_current_admin)
+):
+    """Update an existing topic"""
+    updated_topic = update_topic(db, topic_id, topic)
+    if not updated_topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+    return updated_topic
 
 @app.delete("/topics/{topic_id}")
 def remove_topic(topic_id: int, db: Session = Depends(get_db), current_admin: User = Depends(get_current_admin)):
@@ -351,6 +414,10 @@ def toggle_user_admin(user_id: int, db: Session = Depends(get_db), current_admin
     return result
 
 # Attempts endpoints
+@app.get("/users/me/attempts", response_model=List[AttemptResponse])
+def read_my_attempts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return get_attempts_by_user(db, current_user.id)
+
 @app.get("/admin/attempts", response_model=List[AttemptResponse])
 def read_attempts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_admin: User = Depends(get_current_admin)):
     return get_all_attempts(db, skip, limit)

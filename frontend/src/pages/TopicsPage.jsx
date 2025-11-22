@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Search, Filter, Mic, Clock, TrendingUp, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 8; // 8 topics + 1 custom card = 9 items per page
 
 const TopicsPage = () => {
     const [topics, setTopics] = useState([]);

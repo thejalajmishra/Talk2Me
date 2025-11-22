@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mic, Zap, TrendingUp, Award, Users, Target, ArrowRight, Play, CheckCircle, Star } from 'lucide-react';
+import { Mic, Zap, TrendingUp, Award, Users, Target, ArrowRight, Play, CheckCircle, Star, Sparkles } from 'lucide-react';
 
 const HomePage = () => {
     const [stats, setStats] = useState({ users: 0, sessions: 0, improvement: 0 });
@@ -283,6 +283,107 @@ const HomePage = () => {
                                 )}
                             </div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Custom Topic Feature Section */}
+            <section className="py-24 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gray-900"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-purple-900/50 to-pink-900/50"></div>
+
+                {/* Animated background shapes */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30">
+                    <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+                    <div className="absolute bottom-10 right-10 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-float-delay"></div>
+                </div>
+
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div className="order-2 lg:order-1">
+                            <div className="relative">
+                                <div className="absolute -inset-4 bg-gradient-to-r from-pink-600 to-purple-600 rounded-2xl blur-lg opacity-75 animate-pulse"></div>
+                                <div className="relative bg-gray-800 border border-gray-700 rounded-2xl p-8 shadow-2xl">
+                                    <div className="flex items-center space-x-4 mb-6">
+                                        <div className="bg-purple-500/20 p-3 rounded-lg">
+                                            <Mic className="text-purple-400" size={24} />
+                                        </div>
+                                        <div className="h-2 flex-1 bg-gray-700 rounded-full overflow-hidden">
+                                            <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 w-2/3 animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="bg-gray-700/50 rounded-lg p-4">
+                                            <p className="text-gray-300 text-sm mb-2">AI Analysis Result</p>
+                                            <div className="flex justify-between items-end">
+                                                <div>
+                                                    <span className="text-3xl font-bold text-white">92</span>
+                                                    <span className="text-gray-400 text-sm ml-1">/ 100</span>
+                                                </div>
+                                                <div className="text-green-400 text-sm flex items-center">
+                                                    <TrendingUp size={16} className="mr-1" />
+                                                    Excellent Pace
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-gray-700/30 rounded-lg p-3">
+                                                <p className="text-gray-400 text-xs">Clarity</p>
+                                                <p className="text-white font-semibold">High</p>
+                                            </div>
+                                            <div className="bg-gray-700/30 rounded-lg p-3">
+                                                <p className="text-gray-400 text-xs">Filler Words</p>
+                                                <p className="text-white font-semibold">Minimal</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Floating badge */}
+                                <div className="absolute -top-6 -right-6 bg-white text-gray-900 px-4 py-2 rounded-full font-bold shadow-xl flex items-center animate-bounce">
+                                    <Sparkles className="text-yellow-500 mr-2" size={20} />
+                                    New Feature
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="order-1 lg:order-2 text-center lg:text-left">
+                            <h2 className="text-4xl lg:text-5xl font-extrabold text-white mb-6">
+                                Practice With <br />
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                                    Any Topic You Want
+                                </span>
+                            </h2>
+                            <p className="text-xl text-gray-300 mb-8">
+                                Don't see a topic that fits your needs? Create your own custom topic! Our AI adapts to any subject matter to give you relevant, contextual feedback instantly.
+                            </p>
+
+                            <ul className="space-y-4 mb-10 text-left inline-block">
+                                {[
+                                    'Create custom scenarios for job interviews',
+                                    'Practice specific presentation decks',
+                                    'Rehearse difficult conversations',
+                                    'Get tailored feedback for your specific context'
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center text-gray-300">
+                                        <div className="bg-purple-500/20 rounded-full p-1 mr-3">
+                                            <CheckCircle size={16} className="text-purple-400" />
+                                        </div>
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <div>
+                                <Link
+                                    to="/topics/custom"
+                                    className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg hover:shadow-purple-500/25 hover:scale-105 transition-all duration-300"
+                                >
+                                    Try Custom Topics
+                                    <ArrowRight className="ml-2" size={20} />
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

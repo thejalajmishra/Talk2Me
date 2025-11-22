@@ -44,6 +44,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 def verify_google_token(token: str):
+    """Verify Google OAuth token"""
     import logging
     logger = logging.getLogger(__name__)
     
@@ -81,7 +82,7 @@ def verify_github_code(code: str):
         # Exchange code for access token
         logger.info(f"Exchanging GitHub code for access token: {code[:10]}...")
         logger.info(f"Using Client ID: {GITHUB_CLIENT_ID}")
-        logger.info(f"Using Client Secret: {GITHUB_CLIENT_SECRET[:5]}...")
+        logger.info(f"Using Client Secret: {GITHUB_CLIENT_SECRET[:5] if GITHUB_CLIENT_SECRET else 'None'}...")
         
         token_response = requests.post(
             'https://github.com/login/oauth/access_token',
