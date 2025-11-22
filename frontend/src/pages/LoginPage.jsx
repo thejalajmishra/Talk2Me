@@ -4,6 +4,7 @@ import { showAlert } from '../utils/alert';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Lock, LogIn } from 'lucide-react';
 import axios from 'axios';
+import SEO from '../components/SEO';
 
 const LoginPage = ({ onLogin }) => {
     const navigate = useNavigate();
@@ -139,6 +140,10 @@ const LoginPage = ({ onLogin }) => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+            <SEO
+                title="Login"
+                description="Sign in to Talk2Me to access your dashboard, track your progress, and improve your communication skills."
+            />
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">
                     <div className="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">

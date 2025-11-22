@@ -4,6 +4,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Recorder from '../components/Recorder';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const RecordPage = () => {
     const { topicId } = useParams();
@@ -72,6 +73,10 @@ const RecordPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
+            <SEO
+                title={topic?.title ? `Record - ${topic.title}` : "Record Speech"}
+                description="Record your speech and get instant AI-powered feedback on your pace, clarity, and tone."
+            />
             <div className="max-w-4xl mx-auto">
                 <button
                     onClick={() => navigate('/topics')}

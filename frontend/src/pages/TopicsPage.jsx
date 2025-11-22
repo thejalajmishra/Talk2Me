@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Filter, Mic, Clock, TrendingUp, Sparkles, ChevronLeft, ChevronRight, Lock, User } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const PAGE_SIZE = 8; // 8 topics + 1 custom card = 9 items per page
 
@@ -104,6 +105,10 @@ const TopicsPage = ({ user }) => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative">
+            <SEO
+                title="Practice Topics"
+                description="Choose from a variety of topics to practice your public speaking skills. Get instant AI feedback on your performance."
+            />
             {/* Login Modal */}
             {showLoginModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">

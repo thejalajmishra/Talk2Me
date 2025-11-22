@@ -1,9 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Target, Users, Zap, Award } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const AboutUs = () => (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <SEO
+            title="About Us"
+            description="Learn about Talk2Me's mission to democratize speech coaching with AI. Discover our story and how we help you communicate with confidence."
+        />
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
