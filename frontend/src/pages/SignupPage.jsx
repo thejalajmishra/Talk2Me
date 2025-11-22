@@ -45,7 +45,7 @@ const SignupPage = ({ onLogin }) => {
             };
 
             onLogin(userData);
-            navigate('/welcome');
+            navigate('/profile');
         } catch (error) {
             console.error('Signup failed:', error);
             showAlert('error', error.response?.data?.detail || 'Signup failed. Please try again.');
