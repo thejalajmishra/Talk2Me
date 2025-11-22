@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { showAlert } from '../utils/alert';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Lock, User, UserPlus } from 'lucide-react';
@@ -16,7 +17,7 @@ const SignupPage = ({ onLogin }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => { 
         e.preventDefault();
 
         if (formData.password !== formData.confirmPassword) {
