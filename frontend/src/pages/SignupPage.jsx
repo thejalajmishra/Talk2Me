@@ -17,7 +17,7 @@ const SignupPage = ({ onLogin }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => { 
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (formData.password !== formData.confirmPassword) {
@@ -43,7 +43,7 @@ const SignupPage = ({ onLogin }) => {
             };
 
             onLogin(userData);
-            navigate('/profile');
+            navigate('/welcome');
         } catch (error) {
             console.error('Signup failed:', error);
             showAlert('error', error.response?.data?.detail || 'Signup failed. Please try again.');
