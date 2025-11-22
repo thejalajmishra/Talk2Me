@@ -1,7 +1,7 @@
 import random
 import os
 import shutil
-from fastapi import UploadFile, Depends
+from fastapi import UploadFile, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Attempt, User
@@ -14,7 +14,7 @@ MOCK_TRANSCRIPTS = [
     "My most embarrassing moment was when I tripped on stage during a graduation ceremony. Everyone laughed, but I learned to laugh at myself.",
 ]
 
-async def analyze_audio(file: UploadFile, topic_id: int, db: Session):
+async def analyze_audio(file: UploadFile, topic_id: int, user_id: int, db: Session):
     """
     Analyzes the uploaded audio file.
     1. Saves temp file.
@@ -67,14 +67,10 @@ async def analyze_audio(file: UploadFile, topic_id: int, db: Session):
         }
 
         # Save to DB
-        # For demo, we create a dummy user if not exists
-        user = db.query(User).filter(User.username == "demo_user").first()
+        # Retrieve the authenticated user by ID
+        user = db.query(User).filter(User.id == user_id).first()
         if not user:
-            user = User(username="demo_user", email="demo@example.com")
-            db.add(user)
-            db.commit()
-            db.refresh(user)
-
+            raise HTTPException(status_code=404, detail="User not found")
         attempt = Attempt(
             user_id=user.id,
             topic_id=topic_id,

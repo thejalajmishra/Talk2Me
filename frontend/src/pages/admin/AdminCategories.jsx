@@ -1,4 +1,6 @@
+import React, { useState, useEffect } from 'react';
 import { showAlert } from '../../utils/alert';
+import { useNavigate } from 'react-router-dom';
 // replace alert calls
 // line 40 -> showAlert('error', error.response?.data?.detail || "Failed to save category");
 // line 58 -> showAlert('error', error.response?.data?.detail || "Cannot delete category with existing topics");

@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
-import TopicSelection from './pages/TopicSelection';
+import AdminLayout from './components/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminTopics from './pages/admin/AdminTopics';
+import AdminCategories from './pages/admin/AdminCategories';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminAttempts from './pages/admin/AdminAttempts';
+import HomePage from './pages/HomePage';
+import AboutUs from './pages/AboutUs';
+import ContactUs from './pages/ContactUs';
+import TopicsPage from './pages/TopicsPage';
+
 import RecordPage from './pages/RecordPage';
 import ResultsPage from './pages/ResultsPage';
 import LeaderboardPage from './pages/LeaderboardPage';
@@ -8,22 +18,13 @@ import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 
-// Admin Components
-import AdminLayout from './components/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminTopics from './pages/admin/AdminTopics';
-import AdminCategories from './pages/admin/AdminCategories';
-import AdminUsers from './pages/admin/AdminUsers';
-import AdminAttempts from './pages/admin/AdminAttempts';
-
 function App() {
-  const [user, setUser] = useState(null);
+  const storedUser = localStorage.getItem('talk2me_user');
+  const [user, setUser] = useState(storedUser ? JSON.parse(storedUser) : null);
 
+  // Keep useEffect for future updates if needed but remove initial load logic
   useEffect(() => {
-    const storedUser = localStorage.getItem('talk2me_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    // No need to set user here; already initialized
   }, []);
 
   const handleLogin = (userData) => {
@@ -52,45 +53,42 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
         {/* Main Navigation - Only show on non-admin pages */}
+        <nav className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
+          <Link to="/" className="text-2xl font-bold text-indigo-600">Talk2Me</Link>
+          <div className="space-x-6">
+            <Link to="/topics" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Topics</Link>
+            <Link to="/about" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">About</Link>
+            <Link to="/contact" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Contact</Link>
+            {user ? (
+              <>
+                <Link to="/profile" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Profile</Link>
+                <button onClick={handleLogout} className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Logout</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Login</Link>
+                <Link to="/signup" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Signup</Link>
+              </>
+            )}
+            {user && user.is_superadmin && (
+              <Link to="/admin" className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors">Admin</Link>
+            )}
+          </div>
+        </nav>
         <Routes>
-          <Route path="/admin/*" element={null} />
-          <Route path="*" element={
-            <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16">
-                  <div className="flex items-center">
-                    <Link to="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-                      Talk2Me
-                    </Link>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <Link to="/leaderboard" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Leaderboard</Link>
-                    {user ? (
-                      <>
-                        {user.is_superadmin && (
-                          <Link to="/admin" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Admin</Link>
-                        )}
-                        <button onClick={handleLogout} className="text-gray-500 hover:text-gray-900 font-medium transition-colors">
-                          Logout
-                        </button>
-                        <Link to="/profile" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-md shadow-indigo-200">
-                          Profile
-                        </Link>
-                      </>
-                    ) : (
-                      <Link to="/login" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Login</Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </nav>
-          } />
+          {/* Removed placeholder admin route that blocked admin pages */}
+          {/* Added fallback redirect for unknown routes */}
+// Removed placeholder fallback route
+
         </Routes>
 
         <main>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<TopicSelection />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/topics" element={<TopicsPage />} />
             <Route path="/record/:topicId" element={<RecordPage />} />
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />

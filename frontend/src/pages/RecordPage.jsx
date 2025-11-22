@@ -37,6 +37,10 @@ const RecordPage = () => {
         const formData = new FormData();
         formData.append('file', audioBlob, 'speech.webm');
         formData.append('topic_id', topicId);
+        // Attach the logged‑in user's ID so the backend can associate the attempt
+        if (user && user.id) {
+            formData.append('user_id', user.id);
+        }
 
         try {
             const response = await axios.post('http://localhost:8000/analyze', formData, {

@@ -142,9 +142,10 @@ def remove_topic(topic_id: int, db: Session = Depends(get_db), current_admin: Us
 async def analyze_speech(
     audio: UploadFile = File(...),
     topic_id: int = Form(...),
-    user_id: int = Form(...)
+    user_id: int = Form(...),
+    db: Session = Depends(get_db)
 ):
-    result = await analyze_audio(audio, topic_id, user_id)
+    result = await analyze_audio(audio, topic_id, user_id, db)
     return result
 
 @app.get("/leaderboard", response_model=List[dict])
