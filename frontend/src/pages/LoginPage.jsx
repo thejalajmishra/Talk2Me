@@ -36,7 +36,7 @@ const LoginPage = ({ onLogin }) => {
             };
 
             onLogin(userData);
-            navigate('/profile');
+            navigate('/welcome');
         } catch (error) {
             console.error('Login failed:', error);
             showAlert('error', error.response?.data?.detail || 'Login failed. Please check your credentials.');
