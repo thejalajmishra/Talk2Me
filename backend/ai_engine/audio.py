@@ -1,6 +1,6 @@
 import librosa
 import numpy as np
-
+ 
 def analyze_audio_features(file_path: str):
     """
     Analyzes audio file for duration, tempo, and pitch.
@@ -29,4 +29,5 @@ def analyze_audio_features(file_path: str):
             "avg_pitch": 0.0,
             "success": False,
             "error": str(e)
+            
         }
