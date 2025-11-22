@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, AlertCircle, Activity, Mic, Award } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const ResultsPage = () => {
     const location = useLocation();
@@ -27,6 +28,10 @@ const ResultsPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
+            <SEO
+                title="Analysis Results"
+                description="View your speech analysis results with detailed feedback on pace, clarity, tone, and improvement suggestions."
+            />
             <div className="max-w-5xl mx-auto">
                 <button
                     onClick={() => navigate('/')}

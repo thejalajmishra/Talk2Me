@@ -4,6 +4,7 @@ import { showAlert } from '../utils/alert';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Lock, User, UserPlus } from 'lucide-react';
 import axios from 'axios';
+import SEO from '../components/SEO';
 
 const SignupPage = ({ onLogin }) => {
     const navigate = useNavigate();
@@ -151,6 +152,10 @@ const SignupPage = ({ onLogin }) => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+            <SEO
+                title="Sign Up"
+                description="Create your Talk2Me account to start your journey towards better communication. Get personalized feedback and track your improvement."
+            />
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">
                     <div className="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">

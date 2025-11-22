@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { showAlert } from '../utils/alert';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const ContactUs = () => {
     const [formData, setFormData] = useState({
@@ -38,6 +39,10 @@ const ContactUs = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+            <SEO
+                title="Contact Us"
+                description="Get in touch with the Talk2Me team. We're here to help you with any questions or feedback."
+            />
             {/* Hero Section */}
             <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

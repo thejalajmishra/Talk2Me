@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mic, Zap, TrendingUp, Award, Users, Target, ArrowRight, Play, CheckCircle, Star, Sparkles } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const HomePage = () => {
     const [stats, setStats] = useState({ users: 0, sessions: 0, improvement: 0 });
@@ -88,6 +89,10 @@ const HomePage = () => {
 
     return (
         <div className="min-h-screen bg-white">
+            <SEO
+                title="Home"
+                description="Master public speaking with AI-powered feedback. Practice anytime, anywhere and improve your communication skills."
+            />
             {/* Hero Section */}
             <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white">
                 {/* Animated Background Elements */}

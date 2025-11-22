@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ArrowLeft, User, Mic, Star, Calendar, Edit2, Save, X, TrendingUp, Activity, Clock } from 'lucide-react';
 import { showAlert } from '../utils/alert';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import SEO from '../components/SEO';
 
 const ProfilePage = ({ user, onUpdate }) => {
     const navigate = useNavigate();
@@ -97,6 +98,10 @@ const ProfilePage = ({ user, onUpdate }) => {
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
+            <SEO
+                title="My Profile"
+                description="View your speech analysis history, track your progress, and manage your account settings."
+            />
             <div className="max-w-6xl mx-auto">
                 <button
                     onClick={() => navigate('/')}
@@ -283,8 +288,8 @@ const ProfilePage = ({ user, onUpdate }) => {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${attempt.overall_score >= 80 ? 'bg-green-100 text-green-800' :
-                                                            attempt.overall_score >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                                                                'bg-red-100 text-red-800'
+                                                        attempt.overall_score >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                                                            'bg-red-100 text-red-800'
                                                         }`}>
                                                         {attempt.overall_score}
                                                     </span>
