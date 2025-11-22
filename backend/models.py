@@ -11,7 +11,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
+    hashed_password = Column(String, nullable=True)
     is_superadmin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
@@ -33,11 +33,14 @@ class Topic(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
-    difficulty = Column(String) # Easy, Medium, Hard
+    difficulty = Column(String) # Easy, Medium, Hard, Custom
     description = Column(Text, nullable=True)
+    is_custom = Column(Boolean, default=False)  # Flag for user-created topics
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)  # User who created it
     
     category = relationship("Category", back_populates="topics")
     attempts = relationship("Attempt", back_populates="topic")
+    creator = relationship("User", foreign_keys=[created_by])
 
 class Attempt(Base):
     __tablename__ = "attempts"
@@ -58,3 +61,13 @@ class Attempt(Base):
     
     user = relationship("User", back_populates="attempts")
     topic = relationship("Topic", back_populates="attempts")
+
+class ContactMessage(Base):
+    __tablename__ = "contact_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    subject = Column(String, nullable=True)
+    message = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

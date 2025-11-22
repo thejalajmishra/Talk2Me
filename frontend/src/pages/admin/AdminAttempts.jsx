@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Trash2 } from 'lucide-react';
+import { showAlert } from '../../utils/alert';
 
 const AdminAttempts = ({ user }) => {
     const [attempts, setAttempts] = useState([]);
@@ -25,15 +26,17 @@ const AdminAttempts = ({ user }) => {
     };
 
     const handleDelete = async (attemptId) => {
-        if (window.confirm("Are you sure you want to delete this attempt?")) {
+        const result = await showAlert('warning', 'Are you sure you want to delete this attempt? This action cannot be undone.', 'Delete Attempt', true);
+        if (result.isConfirmed) {
             try {
                 await axios.delete(`http://localhost:8000/admin/attempts/${attemptId}`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 fetchAttempts();
+                showAlert('success', 'Attempt deleted successfully!', 'Deleted');
             } catch (error) {
                 console.error("Failed to delete attempt", error);
-                alert(error.response?.data?.detail || "Failed to delete attempt");
+                showAlert('error', error.response?.data?.detail || 'Failed to delete attempt', 'Error');
             }
         }
     };
@@ -72,8 +75,8 @@ const AdminAttempts = ({ user }) => {
                                         <div>
                                             <span className="text-gray-500">Score:</span>
                                             <span className={`ml-1 font-medium ${attempt.score >= 80 ? 'text-green-600' :
-                                                    attempt.score >= 60 ? 'text-yellow-600' :
-                                                        'text-red-600'
+                                                attempt.score >= 60 ? 'text-yellow-600' :
+                                                    'text-red-600'
                                                 }`}>{attempt.score || 'N/A'}</span>
                                         </div>
                                         <div>

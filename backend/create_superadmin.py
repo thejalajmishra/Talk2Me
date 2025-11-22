@@ -1,51 +1,48 @@
-#!/usr/bin/env python3
-"""
-Script to create a superadmin user in the database.
-Usage: python create_superadmin.py
-"""
-
-from database import SessionLocal
-from models import User
+from sqlalchemy.orm import Session
+from database import SessionLocal, engine
+from models import Base, User
 from auth import get_password_hash
+
+# Create tables
+Base.metadata.create_all(bind=engine)
 
 def create_superadmin():
     db = SessionLocal()
     try:
         # Check if superadmin already exists
-        existing_admin = db.query(User).filter(User.is_superadmin == True).first()
+        existing_admin = db.query(User).filter(User.email == "admin@talk2me.com").first()
         if existing_admin:
-            print(f"Superadmin already exists: {existing_admin.username} ({existing_admin.email})")
+            print("Superadmin already exists!")
+            print(f"Username: {existing_admin.username}")
+            print(f"Email: {existing_admin.email}")
             return
         
-        # Create superadmin
-        username = input("Enter superadmin username: ")
-        email = input("Enter superadmin email: ")
-        password = input("Enter superadmin password: ")
+        # Create superadmin with default credentials
+        username = "admin"
+        email = "admin@talk2me.com"
+        password = "admin123"
         
-        # Check if user with this email/username exists
-        existing_user = db.query(User).filter(
-            (User.email == email) | (User.username == username)
-        ).first()
+        hashed_password = get_password_hash(password)
         
-        if existing_user:
-            # Upgrade existing user to superadmin
-            existing_user.is_superadmin = True
-            db.commit()
-            print(f"Upgraded existing user '{existing_user.username}' to superadmin!")
-        else:
-            # Create new superadmin
-            superadmin = User(
-                username=username,
-                email=email,
-                hashed_password=get_password_hash(password),
-                is_superadmin=True
-            )
-            db.add(superadmin)
-            db.commit()
-            print(f"Superadmin '{username}' created successfully!")
-            
+        superadmin = User(
+            username=username,
+            email=email,
+            hashed_password=hashed_password,
+            is_superadmin=True
+        )
+        
+        db.add(superadmin)
+        db.commit()
+        db.refresh(superadmin)
+        
+        print("✅ Superadmin created successfully!")
+        print(f"Username: {username}")
+        print(f"Email: {email}")
+        print(f"Password: {password}")
+        print("\n⚠️  Please change the password after first login!")
+        
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error creating superadmin: {e}")
         db.rollback()
     finally:
         db.close()

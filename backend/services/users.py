@@ -17,6 +17,14 @@ def update_user(db: Session, user_id: int, user_update: UserUpdate):
         return None
     
     update_data = user_update.dict(exclude_unset=True)
+    
+    # Handle password update
+    if 'password' in update_data:
+        password = update_data.pop('password')
+        if password:
+            from auth import get_password_hash
+            db_user.hashed_password = get_password_hash(password)
+            
     for key, value in update_data.items():
         setattr(db_user, key, value)
     
