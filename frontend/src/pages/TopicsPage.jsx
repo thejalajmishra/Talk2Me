@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { Search, Filter, Mic, Clock, TrendingUp, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, Filter, Mic, Clock, TrendingUp, Sparkles, ChevronLeft, ChevronRight, Lock, User } from 'lucide-react';
 
 const PAGE_SIZE = 8; // 8 topics + 1 custom card = 9 items per page
 
-const TopicsPage = () => {
+const TopicsPage = ({ user }) => {
+    const navigate = useNavigate();
     const [topics, setTopics] = useState([]);
     const [categories, setCategories] = useState([]);
     const [selectedCat, setSelectedCat] = useState('');
@@ -13,6 +14,8 @@ const TopicsPage = () => {
     const [selectedDifficulty, setSelectedDifficulty] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [pendingPath, setPendingPath] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -54,6 +57,22 @@ const TopicsPage = () => {
         setCurrentPage(1);
     };
 
+    const handleTopicClick = (path) => {
+        if (user) {
+            navigate(path);
+        } else {
+            setPendingPath(path);
+            setShowLoginModal(true);
+        }
+    };
+
+    const handleGuestAccess = () => {
+        if (pendingPath) {
+            navigate(`${pendingPath}?guest=true`);
+        }
+        setShowLoginModal(false);
+    };
+
     const getDifficultyColor = (difficulty) => {
         switch (difficulty) {
             case 'Easy': return 'bg-green-100 text-green-700 border-green-200';
@@ -84,7 +103,58 @@ const TopicsPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative">
+            {/* Login Modal */}
+            {showLoginModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all scale-100">
+                        <div className="text-center mb-8">
+                            <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Lock className="text-indigo-600" size={32} />
+                            </div>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">Unlock Full Practice</h2>
+                            <p className="text-gray-600">
+                                Sign up to save your progress, track improvements, and get detailed analytics.
+                            </p>
+                        </div>
+
+                        <div className="space-y-4">
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-lg shadow-indigo-200 transition-all flex items-center justify-center"
+                            >
+                                <User className="mr-2" size={20} />
+                                Login / Sign Up
+                            </button>
+
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-gray-200"></div>
+                                </div>
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-2 bg-white text-gray-500">or</span>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handleGuestAccess}
+                                className="w-full py-3 px-4 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 rounded-xl font-semibold transition-all flex items-center justify-center hover:bg-gray-50"
+                            >
+                                Try as Guest
+                                <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded-full text-gray-500">No Save</span>
+                            </button>
+                        </div>
+
+                        <button
+                            onClick={() => setShowLoginModal(false)}
+                            className="mt-6 text-sm text-gray-400 hover:text-gray-600 w-full text-center"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Hero Section */}
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -198,9 +268,9 @@ const TopicsPage = () => {
                 ) : (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
                         {/* Custom Topic Creation Card */}
-                        <Link
-                            to="/topics/custom"
-                            className="bg-gradient-to-br from-purple-600 via-indigo-600 to-pink-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group border-2 border-purple-400 relative"
+                        <div
+                            onClick={() => handleTopicClick('/topics/custom')}
+                            className="cursor-pointer bg-gradient-to-br from-purple-600 via-indigo-600 to-pink-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group border-2 border-purple-400 relative"
                         >
                             {/* Sparkle Effect */}
                             <div className="absolute top-4 right-4">
@@ -228,7 +298,7 @@ const TopicsPage = () => {
                                     </div>
                                 </div>
                             </div>
-                        </Link>
+                        </div>
 
                         {/* Regular Topics */}
                         {displayed.map(topic => (
@@ -270,15 +340,15 @@ const TopicsPage = () => {
                                     </div>
 
                                     {/* Action Button */}
-                                    <Link
-                                        to={`/record/${topic.id}`}
+                                    <button
+                                        onClick={() => handleTopicClick(`/record/${topic.id}`)}
                                         className="block w-full text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all font-medium shadow-md hover:shadow-lg group-hover:scale-105 transform"
                                     >
                                         <span className="flex items-center justify-center">
                                             <Mic size={18} className="mr-2" />
                                             Start Recording
                                         </span>
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         ))}

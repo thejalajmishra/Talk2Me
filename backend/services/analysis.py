@@ -14,7 +14,7 @@ MOCK_TRANSCRIPTS = [
     "My most embarrassing moment was when I tripped on stage during a graduation ceremony. Everyone laughed, but I learned to laugh at myself.",
 ]
 
-async def analyze_audio(file: UploadFile, topic_id: int, user_id: int, db: Session):
+async def analyze_audio(file: UploadFile, topic_id: int, user_id: int | None, db: Session):
     """
     Analyzes the uploaded audio file.
     1. Saves temp file.
@@ -67,25 +67,28 @@ async def analyze_audio(file: UploadFile, topic_id: int, user_id: int, db: Sessi
         }
 
         # Save to DB
-        # Retrieve the authenticated user by ID
-        user = db.query(User).filter(User.id == user_id).first()
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-        attempt = Attempt(
-            user_id=user.id,
-            topic_id=topic_id,
-            transcript=transcript,
-            wpm=wpm,
-            filler_count=filler_count,
-            score=overall_score,
-            feedback_json=feedback_data
-        )
-        db.add(attempt)
-        db.commit()
-        db.refresh(attempt)
+        attempt_id = None
+        if user_id:
+            # Retrieve the authenticated user by ID
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            attempt = Attempt(
+                user_id=user.id,
+                topic_id=topic_id,
+                transcript=transcript,
+                wpm=wpm,
+                filler_count=filler_count,
+                score=overall_score,
+                feedback_json=feedback_data
+            )
+            db.add(attempt)
+            db.commit()
+            db.refresh(attempt)
+            attempt_id = attempt.id
         
         return {
-            "id": attempt.id,
+            "id": attempt_id,
             "transcript": transcript,
             "duration": round(duration, 2),
             "wpm": round(wpm, 1),

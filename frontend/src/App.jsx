@@ -140,7 +140,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
-          <Route path="/topics" element={<TopicsPage />} />
+          <Route path="/topics" element={<TopicsPage user={user} />} />
           <Route path="/topics/custom" element={<CustomTopicPage user={user} />} />
           <Route path="/record/:topicId" element={<RecordPage />} />
           <Route path="/results" element={<ResultsPage />} />

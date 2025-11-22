@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from database import engine, get_db
 from models import Base, User
@@ -346,7 +346,7 @@ def remove_topic(topic_id: int, db: Session = Depends(get_db), current_admin: Us
 async def analyze_speech(
     audio: UploadFile = File(...),
     topic_id: int = Form(...),
-    user_id: int = Form(...),
+    user_id: Optional[int] = Form(None),
     db: Session = Depends(get_db)
 ):
     result = await analyze_audio(audio, topic_id, user_id, db)
