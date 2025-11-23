@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { User, ChevronDown } from 'lucide-react';
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminTopics from './pages/admin/AdminTopics';
@@ -17,6 +18,7 @@ import RecordPage from './pages/RecordPage';
 import ResultsPage from './pages/ResultsPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage';
 import InsightsPage from './pages/InsightsPage';
 import LearningPage from './pages/LearningPage';
 import LoginPage from './pages/LoginPage';
@@ -28,6 +30,8 @@ function App() {
   const [user, setUser] = useState(storedUser ? JSON.parse(storedUser) : null);
   const location = useLocation();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (user?.is_superadmin) {
@@ -63,7 +67,6 @@ function App() {
     );
   };
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const showNav = !user?.is_superadmin;
 
   return (
@@ -87,8 +90,39 @@ function App() {
                 {user ? (
                   <>
                     <Link to="/insights" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Insights</Link>
-                    <Link to="/profile" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Profile</Link>
-                    <button onClick={handleLogout} className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Logout</button>
+
+                    {/* Profile Dropdown */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                        className="flex items-center space-x-1 text-gray-500 hover:text-gray-900 font-medium transition-colors p-2 rounded-lg hover:bg-gray-100"
+                      >
+                        <User size={22} />
+                        <ChevronDown size={16} className={`transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {profileDropdownOpen && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50">
+                          <div className="px-4 py-2 border-b border-gray-100">
+                            <p className="text-sm font-semibold text-gray-900">{user.username}</p>
+                            <p className="text-xs text-gray-500">{user.email}</p>
+                          </div>
+                          <Link
+                            to="/profile"
+                            onClick={() => setProfileDropdownOpen(false)}
+                            className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            Profile
+                          </Link>
+                          <button
+                            onClick={() => { handleLogout(); setProfileDropdownOpen(false); }}
+                            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            Logout
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </>
                 ) : (
                   <>
@@ -125,8 +159,16 @@ function App() {
                 {user ? (
                   <>
                     <Link to="/insights" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Insights</Link>
-                    <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Profile</Link>
-                    <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="block w-full text-left text-gray-700 hover:text-indigo-600 font-medium py-2">Logout</button>
+
+                    {/* Mobile Profile Section */}
+                    <div className="border-t border-gray-200 pt-3 mt-3">
+                      <div className="flex items-center px-2 py-2 text-gray-700 font-medium">
+                        <User size={18} className="mr-2" />
+                        <span>{user.username}</span>
+                      </div>
+                      <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block pl-8 py-2 text-gray-600 hover:text-indigo-600">Profile</Link>
+                      <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="block w-full text-left pl-8 py-2 text-gray-600 hover:text-indigo-600">Logout</button>
+                    </div>
                   </>
                 ) : (
                   <>
@@ -154,6 +196,7 @@ function App() {
           <Route path="/insights" element={<InsightsPage user={user} />} />
           <Route path="/learning" element={<LearningPage />} />
           <Route path="/profile" element={<ProfilePage user={user} onUpdate={handleLogin} />} />
+          <Route path="/profile/edit" element={<EditProfilePage user={user} onUpdate={handleLogin} />} />
           <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
           <Route path="/signup" element={<SignupPage onLogin={handleLogin} />} />
           <Route path="/auth/github/callback" element={<GitHubCallback />} />
