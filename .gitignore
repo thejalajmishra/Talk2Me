@@ -6,3 +6,7 @@ __pycache__/
 node_modules/
 dist/
 talk2me.db
+backend/talk2me.db
+backend/uploads/
+backend/ai_engine/temp_*.webm
+
