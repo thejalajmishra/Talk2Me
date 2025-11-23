@@ -7,6 +7,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import SEO from '../components/SEO';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { getAvatarPath } from '../utils/avatars';
 
 const ProfilePage = ({ user, onUpdate }) => {
     const navigate = useNavigate();
@@ -200,6 +201,7 @@ const ProfilePage = ({ user, onUpdate }) => {
         date: new Date(a.created_at).toLocaleDateString()
     }));
 
+
     // Recent Activity (reverse chronological)
     const recentActivity = [...attempts].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
 
@@ -226,9 +228,11 @@ const ProfilePage = ({ user, onUpdate }) => {
                         <div className="relative flex justify-between items-end -mt-12 mb-6">
                             <div className="flex items-end">
                                 <div className="h-24 w-24 bg-white rounded-full p-1 shadow-lg">
-                                    <div className="h-full w-full bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
-                                        <User size={40} />
-                                    </div>
+                                    <img
+                                        src={getAvatarPath(user.profile_picture || 'avatar1')}
+                                        alt="Profile"
+                                        className="h-full w-full rounded-full object-cover"
+                                    />
                                 </div>
                                 <div className="ml-4 mb-1 flex-1">
                                     {isEditing ? (
@@ -285,7 +289,7 @@ const ProfilePage = ({ user, onUpdate }) => {
                                         </div>
                                     ) : (
                                         <button
-                                            onClick={handleEdit}
+                                            onClick={() => navigate('/profile/edit')}
                                             className="flex items-center px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
                                         >
                                             <Edit2 size={16} className="mr-1" /> Edit Profile
