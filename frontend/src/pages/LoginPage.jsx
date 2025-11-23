@@ -4,6 +4,7 @@ import { showAlert } from '../utils/alert';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Lock, LogIn } from 'lucide-react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import SEO from '../components/SEO';
 
 const LoginPage = ({ onLogin }) => {
@@ -21,7 +22,7 @@ const LoginPage = ({ onLogin }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/auth/login', {
+            const response = await axios.post(`${API_URL}/auth/login`, {
                 email: formData.email,
                 password: formData.password
             });
@@ -48,7 +49,7 @@ const LoginPage = ({ onLogin }) => {
     const googleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
-                const res = await axios.post('http://localhost:8000/auth/google', {
+                const res = await axios.post(`${API_URL}/auth/google`, {
                     token: tokenResponse.access_token
                 });
 
@@ -89,7 +90,7 @@ const LoginPage = ({ onLogin }) => {
                 processedCodes.current.add(code);
 
                 try {
-                    const res = await axios.post('http://localhost:8000/auth/github', {
+                    const res = await axios.post(`${API_URL}/auth/github`, {
                         code: code
                     });
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../../config/api';
 import { Plus, Trash2, Sparkles, Edit2, Save, X } from 'lucide-react';
 import { showAlert } from '../../utils/alert';
 
@@ -28,7 +29,7 @@ const AdminTopics = ({ user }) => {
     const fetchTopics = async () => {
         try {
             // Use admin endpoint to get all topics including custom ones
-            const response = await axios.get('http://localhost:8000/admin/topics/all', {
+            const response = await axios.get(`${API_URL}/admin/topics/all`, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setTopics(response.data);
@@ -39,7 +40,7 @@ const AdminTopics = ({ user }) => {
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/categories');
+            const response = await axios.get(`${API_URL}/categories`);
             setCategories(response.data);
         } catch (error) {
             console.error("Failed to fetch categories", error);
@@ -56,7 +57,7 @@ const AdminTopics = ({ user }) => {
         }
 
         try {
-            await axios.post('http://localhost:8000/topics', newTopic, {
+            await axios.post(`${API_URL}/topics`, newTopic, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setNewTopic({ title: '', category_id: null, difficulty: 'Medium', description: '' });
@@ -72,7 +73,7 @@ const AdminTopics = ({ user }) => {
         const result = await showAlert('warning', 'Are you sure you want to delete this topic? This action cannot be undone.', 'Delete Topic', true);
         if (result.isConfirmed) {
             try {
-                await axios.delete(`http://localhost:8000/topics/${id}`, {
+                await axios.delete(`${API_URL}/topics/${id}`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 fetchTopics();
@@ -111,7 +112,7 @@ const AdminTopics = ({ user }) => {
         }
 
         try {
-            await axios.put(`http://localhost:8000/topics/${id}`, editData, {
+            await axios.put(`${API_URL}/topics/${id}`, editData, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setEditingTopic(null);

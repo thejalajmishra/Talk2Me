@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trophy, Medal } from 'lucide-react';
+import { ArrowLeft, Trophy, Medal, Award, TrendingUp, User } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const LeaderboardPage = () => {
-    const [leaders, setLeaders] = useState([]);
+    const [leaderboard, setLeaderboard] = useState([]);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/leaderboard');
-                setLeaders(response.data);
+                const response = await axios.get(`${API_URL}/leaderboard`);
+                setLeaderboard(response.data);
             } catch (error) {
                 console.error("Failed to fetch leaderboard", error);
                 // Fallback
-                setLeaders([
+                setLeaderboard([
                     { rank: 1, user: "Alice", topic: "Future of AI", score: 98, date: "2023-10-01" },
                     { rank: 2, user: "Bob", topic: "Climate Change", score: 95, date: "2023-10-02" },
                     { rank: 3, user: "Charlie", topic: "Leadership", score: 92, date: "2023-10-03" },

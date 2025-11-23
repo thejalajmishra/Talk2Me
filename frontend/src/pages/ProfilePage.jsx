@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { ArrowLeft, User, Mic, Star, Calendar, Edit2, Save, X, TrendingUp, Activity, Clock, Eye, Download, FileText } from 'lucide-react';
 import { showAlert } from '../utils/alert';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
@@ -31,7 +32,7 @@ const ProfilePage = ({ user, onUpdate }) => {
 
     const fetchAttempts = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/users/me/attempts', {
+            const response = await axios.get(`${API_URL}/users/me/attempts`, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setAttempts(response.data);
@@ -66,7 +67,7 @@ const ProfilePage = ({ user, onUpdate }) => {
                 updatePayload.password = editData.password;
             }
 
-            const response = await axios.put('http://localhost:8000/users/me', updatePayload, {
+            const response = await axios.put(`${API_URL}/users/me`, updatePayload, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
 
@@ -399,7 +400,7 @@ const ProfilePage = ({ user, onUpdate }) => {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {attempt.audio_url ? (
-                                                        <audio controls src={`http://localhost:8000/uploads/${attempt.audio_url}`} className="h-8 w-48" />
+                                                        <audio controls src={`${API_URL}/uploads/${attempt.audio_url}`} className="h-8 w-48" />
                                                     ) : (
                                                         <span className="text-gray-400 italic">Not available</span>
                                                     )}
@@ -568,7 +569,7 @@ const ProfilePage = ({ user, onUpdate }) => {
                             {selectedAttempt.audio_url && (
                                 <div className="mb-6">
                                     <h3 className="text-lg font-bold text-gray-900 mb-3">Audio Recording</h3>
-                                    <audio controls src={`http://localhost:8000/uploads/${selectedAttempt.audio_url}`} className="w-full" />
+                                    <audio controls src={`${API_URL}/uploads/${selectedAttempt.audio_url}`} className="w-full" />
                                 </div>
                             )}
 

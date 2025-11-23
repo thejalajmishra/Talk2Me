@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../../config/api';
 import { Trash2, Shield, Edit2, Save, X, Plus } from 'lucide-react';
 import { showAlert } from '../../utils/alert';
 
@@ -21,7 +22,7 @@ const AdminUsers = ({ user }) => {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:8000/admin/users', {
+            const response = await axios.get(`${API_URL}/admin/users`, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setUsers(response.data);
@@ -38,7 +39,7 @@ const AdminUsers = ({ user }) => {
         }
 
         try {
-            await axios.post('http://localhost:8000/admin/users', newUser, {
+            await axios.post(`${API_URL}/admin/users`, newUser, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setNewUser({ username: '', email: '', password: '' });
@@ -53,7 +54,7 @@ const AdminUsers = ({ user }) => {
 
     const handleToggleAdmin = async (userId) => {
         try {
-            await axios.post(`http://localhost:8000/admin/users/${userId}/toggle-admin`, {}, {
+            await axios.post(`${API_URL}/admin/users/${userId}/toggle-admin`, {}, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             fetchUsers();
@@ -68,7 +69,7 @@ const AdminUsers = ({ user }) => {
         const result = await showAlert('warning', 'Are you sure you want to delete this user? This action cannot be undone.', 'Delete User', true);
         if (result.isConfirmed) {
             try {
-                await axios.delete(`http://localhost:8000/admin/users/${userId}`, {
+                await axios.delete(`${API_URL}/admin/users/${userId}`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 fetchUsers();
@@ -100,7 +101,7 @@ const AdminUsers = ({ user }) => {
                 updatePayload.password = editData.password;
             }
 
-            await axios.put(`http://localhost:8000/admin/users/${id}`, updatePayload, {
+            await axios.put(`${API_URL}/admin/users/${id}`, updatePayload, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setEditingUser(null);

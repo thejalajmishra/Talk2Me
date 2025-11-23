@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { showAlert } from '../utils/alert';
 import { Mic, Square, Send, Sparkles } from 'lucide-react';
 
@@ -29,7 +30,7 @@ const CustomTopicPage = ({ user }) => {
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/categories');
+            const response = await axios.get(`${API_URL}/categories`);
             setCategories(response.data);
             if (response.data.length > 0) {
                 setSelectedCategory(response.data[0].id.toString());
@@ -146,7 +147,7 @@ const CustomTopicPage = ({ user }) => {
         try {
             const token = user.token;
             await axios.post(
-                'http://localhost:8000/topics/custom',
+                `${API_URL}/topics/custom`,
                 {
                     title: title.trim(),
                     category_id: parseInt(selectedCategory),

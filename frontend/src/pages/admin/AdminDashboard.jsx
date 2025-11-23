@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../../config/api';
 import { LayoutGrid, TrendingUp, Users, Mic, FolderOpen, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -24,12 +25,12 @@ const AdminDashboard = ({ user }) => {
 
             // Fetch all data in parallel
             const [topicsRes, categoriesRes, usersRes, attemptsRes] = await Promise.all([
-                axios.get('http://localhost:8000/topics'),
-                axios.get('http://localhost:8000/categories'),
-                axios.get('http://localhost:8000/admin/users', {
+                axios.get(`${API_URL}/topics`),
+                axios.get(`${API_URL}/categories`),
+                axios.get(`${API_URL}/admin/users`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 }),
-                axios.get('http://localhost:8000/admin/attempts', {
+                axios.get(`${API_URL}/admin/attempts`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 })
             ]);
@@ -161,8 +162,8 @@ const AdminDashboard = ({ user }) => {
                                     </div>
                                     <div className="text-right">
                                         <p className={`text-sm font-semibold ${attempt.score >= 80 ? 'text-green-600' :
-                                                attempt.score >= 60 ? 'text-yellow-600' :
-                                                    'text-red-600'
+                                            attempt.score >= 60 ? 'text-yellow-600' :
+                                                'text-red-600'
                                             }`}>
                                             {attempt.score || 'N/A'}
                                         </p>

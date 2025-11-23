@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, LayoutGrid, Users, FolderOpen, Edit2, Shield, Mic } from 'lucide-react';
 
@@ -37,7 +38,7 @@ const AdminPage = ({ user }) => {
 
     const fetchTopics = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/topics');
+            const response = await axios.get(`${API_URL}/topics`);
             setTopics(response.data);
         } catch (error) {
             console.error("Failed to fetch topics", error);
@@ -46,7 +47,7 @@ const AdminPage = ({ user }) => {
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/categories');
+            const response = await axios.get(`${API_URL}/categories`);
             setCategories(response.data);
         } catch (error) {
             console.error("Failed to fetch categories", error);
@@ -59,7 +60,7 @@ const AdminPage = ({ user }) => {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:8000/admin/users', {
+            const response = await axios.get(`${API_URL}/admin/users`, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setUsers(response.data);
@@ -74,7 +75,7 @@ const AdminPage = ({ user }) => {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:8000/admin/attempts', {
+            const response = await axios.get(`${API_URL}/admin/attempts`, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setAttempts(response.data);
@@ -87,7 +88,7 @@ const AdminPage = ({ user }) => {
     const handleTopicSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:8000/topics', newTopic, {
+            await axios.post(`${API_URL}/topics`, newTopic, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setNewTopic({ title: '', category_id: null, difficulty: 'Medium', description: '', time_limit: 60 });
@@ -101,7 +102,7 @@ const AdminPage = ({ user }) => {
     const handleTopicDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this topic?")) {
             try {
-                await axios.delete(`http://localhost:8000/topics/${id}`, {
+                await axios.delete(`${API_URL}/topics/${id}`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 fetchTopics();
@@ -117,12 +118,12 @@ const AdminPage = ({ user }) => {
         e.preventDefault();
         try {
             if (editingCategory) {
-                await axios.put(`http://localhost:8000/categories/${editingCategory.id}`, newCategory, {
+                await axios.put(`${API_URL}/categories/${editingCategory.id}`, newCategory, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 setEditingCategory(null);
             } else {
-                await axios.post('http://localhost:8000/categories', newCategory, {
+                await axios.post(`${API_URL}/categories`, newCategory, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
             }
@@ -143,7 +144,7 @@ const AdminPage = ({ user }) => {
     const handleCategoryDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this category?")) {
             try {
-                await axios.delete(`http://localhost:8000/categories/${id}`, {
+                await axios.delete(`${API_URL}/categories/${id}`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 fetchCategories();
@@ -158,7 +159,7 @@ const AdminPage = ({ user }) => {
     // User handlers
     const handleToggleAdmin = async (userId) => {
         try {
-            await axios.post(`http://localhost:8000/admin/users/${userId}/toggle-admin`, {}, {
+            await axios.post(`${API_URL}/admin/users/${userId}/toggle-admin`, {}, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             fetchUsers();
@@ -171,7 +172,7 @@ const AdminPage = ({ user }) => {
     const handleDeleteUser = async (userId) => {
         if (window.confirm("Are you sure you want to delete this user?")) {
             try {
-                await axios.delete(`http://localhost:8000/admin/users/${userId}`, {
+                await axios.delete(`${API_URL}/admin/users/${userId}`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 fetchUsers();
@@ -186,7 +187,7 @@ const AdminPage = ({ user }) => {
     const handleDeleteAttempt = async (attemptId) => {
         if (window.confirm("Are you sure you want to delete this attempt?")) {
             try {
-                await axios.delete(`http://localhost:8000/admin/attempts/${attemptId}`, {
+                await axios.delete(`${API_URL}/admin/attempts/${attemptId}`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 fetchAttempts();
@@ -521,7 +522,7 @@ const AdminPage = ({ user }) => {
                                             </div>
                                             <div className="mt-3">
                                                 {attempt.audio_url ? (
-                                                    <audio controls src={`http://localhost:8000/uploads/${attempt.audio_url}`} className="h-8 w-full max-w-md" />
+                                                    <audio controls src={`${API_URL}/uploads/${attempt.audio_url}`} className="h-8 w-full max-w-md" />
                                                 ) : (
                                                     <span className="text-xs text-gray-400 italic">Audio not available</span>
                                                 )}

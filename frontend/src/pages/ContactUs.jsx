@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config/api';
+import { Mail, MessageSquare, User, Send, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { showAlert } from '../utils/alert';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import SEO from '../components/SEO';
 
 const ContactUs = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        subject: '',
         message: ''
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
@@ -23,12 +24,12 @@ const ContactUs = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
+        setLoading(true);
 
         try {
-            await axios.post('http://localhost:8000/contact', formData);
+            await axios.post(`${API_URL}/contact`, formData);
             showAlert('success', 'Message sent successfully! We\'ll get back to you soon.');
-            setFormData({ name: '', email: '', subject: '', message: '' });
+            setFormData({ name: '', email: '', message: '' });
         } catch (error) {
             showAlert('error', 'Failed to send message. Please try again.');
             console.error('Contact form error:', error);

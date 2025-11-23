@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 // line 40 -> showAlert('error', error.response?.data?.detail || "Failed to save category");
 // line 58 -> showAlert('error', error.response?.data?.detail || "Cannot delete category with existing topics");
 import axios from 'axios';
+import API_URL from '../../config/api';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
 
 const AdminCategories = ({ user }) => {
@@ -18,7 +19,7 @@ const AdminCategories = ({ user }) => {
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/categories');
+            const response = await axios.get(`${API_URL}/categories`);
             setCategories(response.data);
         } catch (error) {
             console.error("Failed to fetch categories", error);
@@ -29,12 +30,12 @@ const AdminCategories = ({ user }) => {
         e.preventDefault();
         try {
             if (editingCategory) {
-                await axios.put(`http://localhost:8000/categories/${editingCategory.id}`, newCategory, {
+                await axios.put(`${API_URL}/categories/${editingCategory.id}`, newCategory, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 setEditingCategory(null);
             } else {
-                await axios.post('http://localhost:8000/categories', newCategory, {
+                await axios.post(`${API_URL}/categories`, newCategory, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
             }
@@ -56,7 +57,7 @@ const AdminCategories = ({ user }) => {
         const result = await showAlert('warning', 'Are you sure you want to delete this category? This action cannot be undone.', 'Delete Category', true);
         if (result.isConfirmed) {
             try {
-                await axios.delete(`http://localhost:8000/categories/${id}`, {
+                await axios.delete(`${API_URL}/categories/${id}`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 fetchCategories();
