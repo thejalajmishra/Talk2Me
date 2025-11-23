@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, Flame, ChevronLeft, ChevronRight, Lock, Award, Trophy, Star, Zap, Target, Crown } from 'lucide-react';
 import SEO from '../components/SEO';
+import API_URL from '../config/api';
 
 const iconMap = {
     'Award': Award,
@@ -207,6 +208,20 @@ const InsightsPage = ({ user }) => {
         setCurrentDate(newDate);
     };
 
+    const handleTopicOfTheDay = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/topics/daily/random`, {
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            const topic = response.data;
+            if (topic && topic.id) {
+                navigate(`/record/${topic.id}`);
+            }
+        } catch (error) {
+            console.error("Failed to fetch topic of the day", error);
+        }
+    };
+
     const renderCalendar = () => {
         const { days, firstDay } = getDaysInMonth(currentDate);
         const daysArray = [];
@@ -267,54 +282,63 @@ const InsightsPage = ({ user }) => {
         );
     };
 
+    // Safelist gradient classes so Tailwind generates them
+    const SAFELIST_GRADIENTS = [
+        "from-blue-500", "to-cyan-500",
+        "from-green-500", "to-emerald-500",
+        "from-orange-500", "to-red-500",
+        "from-lime-500", "to-green-500",
+        "from-yellow-500", "to-orange-500",
+        "from-purple-500", "to-pink-500",
+        "from-indigo-500", "to-purple-500"
+    ];
+
     const BadgeCard = ({ badge }) => {
         const Icon = badge.icon;
         return (
             <div className={`
-                relative rounded-2xl p-6 transition-all duration-300 hover:scale-105
+                relative rounded-2xl p-6 transition-all duration-300 hover:scale-105 flex flex-col items-center
                 ${badge.unlocked
                     ? `bg-gradient-to-br ${badge.gradient} text-white shadow-lg`
-                    : 'bg-gray-100 text-gray-400 border-2 border-dashed border-gray-300'}
+                    : 'bg-white text-gray-600 border-2 border-dashed border-gray-200'}
             `}>
-                {/* Lock overlay for locked badges */}
+                {/* Lock icon for locked badges */}
                 {!badge.unlocked && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 rounded-2xl backdrop-blur-sm">
-                        <Lock size={32} className="text-gray-400" />
+                    <div className="absolute top-4 right-4">
+                        <Lock size={18} className="text-gray-400" />
                     </div>
                 )}
 
-                <div className="relative">
-                    <div className={`
-                        w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto
-                        ${badge.unlocked
-                            ? 'bg-white/20 backdrop-blur-sm'
-                            : 'bg-gray-200'}
-                    `}>
-                        <Icon size={32} className={badge.unlocked ? 'text-white' : 'text-gray-300'} />
-                    </div>
-
-                    <h3 className={`text-lg font-bold text-center mb-1 ${!badge.unlocked && 'text-gray-500'}`}>
-                        {badge.title}
-                    </h3>
-                    <p className={`text-sm text-center mb-3 ${badge.unlocked ? 'text-white/80' : 'text-gray-400'}`}>
-                        {badge.description}
-                    </p>
-
-                    {/* Progress bar for locked badges */}
-                    {!badge.unlocked && badge.progress < 100 && (
-                        <div className="mt-3">
-                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                                <div
-                                    className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-500"
-                                    style={{ width: `${badge.progress}%` }}
-                                />
-                            </div>
-                            <p className="text-xs text-gray-500 text-center mt-1">
-                                {Math.round(badge.progress)}% Complete
-                            </p>
-                        </div>
-                    )}
+                <div className={`
+                    w-16 h-16 rounded-full flex items-center justify-center mb-4
+                    ${badge.unlocked
+                        ? 'bg-white/20 backdrop-blur-sm'
+                        : 'bg-gray-100'}
+                `}>
+                    <Icon size={32} className={badge.unlocked ? 'text-white' : 'text-gray-400'} />
                 </div>
+
+                <h3 className={`text-lg font-bold text-center mb-1 ${!badge.unlocked && 'text-gray-800'}`}>
+                    {badge.title}
+                </h3>
+                <p className={`text-sm text-center mb-4 ${badge.unlocked ? 'text-white/90' : 'text-gray-500'}`}>
+                    {badge.description}
+                </p>
+
+                {/* Progress bar for locked badges */}
+                {!badge.unlocked && badge.progress < 100 && (
+                    <div className="w-full mt-auto">
+                        <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                            <div
+                                className="bg-indigo-500 h-full rounded-full transition-all duration-500"
+                                style={{ width: `${badge.progress}%` }}
+                            />
+                        </div>
+                        <p className="text-xs text-gray-500 text-center mt-1 font-medium">
+                            {Math.round(badge.progress)}% Complete
+                        </p>
+                    </div>
+                )}
             </div>
         );
     };
@@ -335,7 +359,48 @@ const InsightsPage = ({ user }) => {
                     >
                         <ArrowLeft size={20} className="mr-2" /> Back to Home
                     </button>
-                    <h1 className="text-2xl font-bold text-gray-900">Your Insights</h1>
+                </div>
+
+                {/* Action Tiles */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    {/* Start Practice Tile */}
+                    <div
+                        onClick={() => navigate('/topics')}
+                        className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all relative overflow-hidden group"
+                    >
+                        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+
+                        <div className="flex items-center justify-between relative z-10">
+                            <div>
+                                <h2 className="text-2xl font-bold mb-2">Start Your Practice</h2>
+                                <p className="text-indigo-100">Choose a topic and improve your skills</p>
+                            </div>
+                            <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
+                                <Zap size={32} className="text-white" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Topic of the Day Tile */}
+                    <div
+                        onClick={handleTopicOfTheDay}
+                        className="bg-white rounded-3xl p-6 shadow-lg border border-gray-100 cursor-pointer hover:shadow-xl hover:border-orange-200 hover:scale-[1.02] transition-all relative overflow-hidden group"
+                    >
+                        <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-orange-400 to-red-500"></div>
+
+                        <div className="flex items-center justify-between relative z-10">
+                            <div>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <h2 className="text-2xl font-bold text-gray-900">Topic of the Day</h2>
+                                    <span className="bg-orange-100 text-orange-600 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide">Daily</span>
+                                </div>
+                                <p className="text-gray-500">Random challenge for everyone</p>
+                            </div>
+                            <div className="bg-orange-50 p-3 rounded-2xl group-hover:bg-orange-100 transition-colors">
+                                <Target size={32} className="text-orange-500" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

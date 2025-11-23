@@ -54,3 +54,8 @@ def delete_topic(db: Session, topic_id: int):
         db.commit()
         return True
     return False
+
+def get_random_topic(db: Session):
+    """Get a random non-custom topic."""
+    from sqlalchemy.sql.expression import func
+    return db.query(Topic).filter(Topic.is_custom == False).order_by(func.random()).first()

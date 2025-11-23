@@ -360,6 +360,14 @@ def add_custom_topic(
 def read_topic(topic_id: int, db: Session = Depends(get_db)):
     return get_topic_by_id(db, topic_id)
 
+@app.get("/topics/daily/random", response_model=Topic)
+def read_random_topic(db: Session = Depends(get_db)):
+    from services.topics import get_random_topic
+    topic = get_random_topic(db)
+    if not topic:
+        raise HTTPException(status_code=404, detail="No topics found")
+    return topic
+
 @app.put("/topics/{topic_id}", response_model=Topic)
 def edit_topic(
     topic_id: int, 
