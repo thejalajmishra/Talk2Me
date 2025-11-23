@@ -55,10 +55,14 @@ async def process_attempt(file: UploadFile, topic_id: int, user_id: int, db: Ses
         word_count = len(transcript.split())
         wpm = (word_count / duration) * 60 if duration > 0 else 0
         
-        feedback_result = generate_feedback(client, transcript, duration, wpm)
+        # Manual filler count (backup)
+        fillers = ["um", "uh", "like", "you know", "so", "actually", "basically", "literally"]
+        manual_filler_count = sum(transcript.lower().count(f) for f in fillers)
+        
+        feedback_result = generate_feedback(client, transcript, duration, wpm, manual_filler_count)
         
         # Extract results
-        filler_count = feedback_result.get("filler_count", 0)
+        filler_count = feedback_result.get("filler_count", manual_filler_count)
         overall_score = feedback_result.get("score", 0)
         feedback_data = {
             "tone": feedback_result.get("tone", "Unknown"),

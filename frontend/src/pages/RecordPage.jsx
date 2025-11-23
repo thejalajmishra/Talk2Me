@@ -64,7 +64,8 @@ const RecordPage = () => {
 
         } catch (error) {
             console.error("Analysis failed", error);
-            showAlert('error', 'Analysis failed. Please try again.');
+            const errorMessage = error.response?.data?.detail || error.message || 'Analysis failed. Please try again.';
+            showAlert('error', errorMessage);
             setIsAnalyzing(false);
         }
     };
