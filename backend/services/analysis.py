@@ -5,7 +5,18 @@ from fastapi import UploadFile, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Attempt, User
-import json
+from openai import OpenAI
+import numpy as np
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Try to import librosa, but don't fail if it's missing (fallback to mock)
+try:
+    import librosa
+    LIBROSA_AVAILABLE = True
+except ImportError:
+    LIBROSA_AVAILABLE = False
 
 # Mock Transcript for demo purposes
 MOCK_TRANSCRIPTS = [
@@ -19,7 +30,7 @@ async def analyze_audio(file: UploadFile, topic_id: int, user_id: int | None, db
     Analyzes the uploaded audio file.
     1. Saves temp file.
     2. Uses Librosa for audio metrics (Duration, Tempo).
-    3. Mocks STT (or uses OpenAI if key available).
+    3. Uses OpenAI Whisper for STT (if key available) or Mocks it.
     4. Calculates WPM and Filler count.
     5. Generates AI Feedback.
     """
@@ -31,25 +42,46 @@ async def analyze_audio(file: UploadFile, topic_id: int, user_id: int | None, db
         
     try:
         # 2. Audio Analysis (Librosa)
-        # Note: Librosa might fail if ffmpeg is not installed on the system. 
-        # We wrap in try/except to fallback safely.
-        try:
-            y, sr = librosa.load(temp_filename, sr=None)
-            duration = librosa.get_duration(y=y, sr=sr)
-            tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-            avg_pitch = float(np.mean(librosa.feature.spectral_centroid(y=y, sr=sr)))
-        except Exception as e:
-            print(f"Librosa error: {e}")
-            duration = 30.0 # Fallback
-            tempo = 120.0
-            avg_pitch = 0.0
+        duration = 30.0 # Default
+        tempo = 120.0
+        avg_pitch = 0.0
+        
+        if LIBROSA_AVAILABLE:
+            try:
+                y, sr = librosa.load(temp_filename, sr=None)
+                duration = librosa.get_duration(y=y, sr=sr)
+                tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+                if len(y) > 0:
+                    centroids = librosa.feature.spectral_centroid(y=y, sr=sr)
+                    avg_pitch = float(np.mean(centroids))
+            except Exception as e:
+                print(f"Librosa error: {e}")
 
-        # 3. STT (Mock for now)
-        transcript = random.choice(MOCK_TRANSCRIPTS)
+        # 3. STT (OpenAI or Mock)
+        transcript = ""
+        api_key = os.getenv("OPENAI_API_KEY")
+        
+        if api_key:
+            try:
+                client = OpenAI(api_key=api_key)
+                with open(temp_filename, "rb") as audio_file:
+                    transcription = client.audio.transcriptions.create(
+                        model="whisper-1", 
+                        file=audio_file
+                    )
+                transcript = transcription.text
+            except Exception as e:
+                print(f"OpenAI API error: {e}")
+                # Fallback to mock if API fails
+                transcript = random.choice(MOCK_TRANSCRIPTS)
+        else:
+            print("No OpenAI API Key found. Using mock transcript.")
+            transcript = random.choice(MOCK_TRANSCRIPTS)
+            
         word_count = len(transcript.split())
         
         # 4. Metrics
-        wpm = (word_count / duration) * 60
+        wpm = (word_count / duration) * 60 if duration > 0 else 0
         filler_words = ["um", "uh", "like", "you know"]
         filler_count = sum(transcript.lower().count(fw) for fw in filler_words)
         

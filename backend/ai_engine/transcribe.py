@@ -12,7 +12,9 @@ def transcribe_audio(client: OpenAI, file_path: str):
         with open(file_path, "rb") as audio_file:
             transcription = client.audio.transcriptions.create(
                 model="whisper-1", 
-                file=audio_file
+                file=audio_file,
+                language="en",
+                prompt="Umm, let me think like, uh, this is a verbatim transcript that includes all filler words and hesitations."
             )
         return transcription.text
     except Exception as e:

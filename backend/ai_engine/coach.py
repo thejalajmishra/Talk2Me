@@ -1,14 +1,14 @@
 from openai import OpenAI
 import json
 
-def generate_feedback(client: OpenAI, transcript: str, duration: float, wpm: float):
+def generate_feedback(client: OpenAI, transcript: str, duration: float, wpm: float, filler_count: int):
     """
     Generates feedback using OpenAI GPT.
     """
     if not client:
         return {
             "score": 0,
-            "filler_count": 0,
+            "filler_count": filler_count,
             "tone": "Unknown",
             "improvement_plan": ["Configure OpenAI API Key to get feedback."],
             "metrics": {"clarity": 0, "confidence": 0}
@@ -17,7 +17,7 @@ def generate_feedback(client: OpenAI, transcript: str, duration: float, wpm: flo
     system_prompt = """
     You are an expert communication coach. Analyze the user's speech transcript.
     Return a JSON object with:
-    - filler_count: number of filler words (um, uh, like, you know)
+    - filler_count: number of filler words (um, uh, like, you know). Use the provided count if accurate.
     - score: integer 0-100 based on clarity, structure, and content
     - tone: string (e.g., Confident, Nervous, Monotone, Enthusiastic)
     - improvement_plan: list of 2-3 specific, actionable tips
@@ -28,6 +28,7 @@ def generate_feedback(client: OpenAI, transcript: str, duration: float, wpm: flo
     Transcript: "{transcript}"
     Duration: {duration:.2f} seconds
     WPM: {wpm:.1f}
+    Detected Filler Words: {filler_count}
     """
     
     try:
