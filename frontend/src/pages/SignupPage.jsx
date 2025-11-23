@@ -45,7 +45,7 @@ const SignupPage = ({ onLogin }) => {
             };
 
             onLogin(userData);
-            navigate('/profile');
+            navigate('/welcome');
         } catch (error) {
             console.error('Signup failed:', error);
             showAlert('error', error.response?.data?.detail || 'Signup failed. Please try again.');
@@ -71,7 +71,7 @@ const SignupPage = ({ onLogin }) => {
                 };
 
                 onLogin(userData);
-                navigate('/profile');
+                navigate('/welcome');
 
             } catch (error) {
                 console.error('Google login failed:', error);
@@ -113,7 +113,7 @@ const SignupPage = ({ onLogin }) => {
                     };
 
                     onLogin(userData);
-                    navigate('/profile');
+                    navigate('/welcome');
 
                 } catch (error) {
                     console.error('GitHub login failed:', error);

@@ -350,6 +350,12 @@ async def analyze_speech(
     db: Session = Depends(get_db)
 ):
     result = await analyze_audio(audio, topic_id, user_id, db)
+    
+    # Update user streak if user is logged in
+    if user_id:
+        from services.users import update_user_streak
+        update_user_streak(db, user_id)
+        
     return result
 
 @app.get("/leaderboard", response_model=List[dict])

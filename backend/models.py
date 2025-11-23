@@ -15,6 +15,10 @@ class User(Base):
     is_superadmin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
+    # Streak Tracking
+    current_streak = Column(Integer, default=0)
+    last_practice_date = Column(DateTime, nullable=True)
+    
     attempts = relationship("Attempt", back_populates="user")
 
 class Category(Base):

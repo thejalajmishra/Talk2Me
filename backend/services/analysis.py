@@ -24,10 +24,20 @@ async def analyze_audio(file: UploadFile, topic_id: int, user_id: int | None, db
     5. Generates AI Feedback.
     """
     
-    # 1. Save Temp File
-    temp_filename = f"temp_{random.randint(1000, 9999)}.webm"
-    with open(temp_filename, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    # Ensure the 'uploads' directory exists
+    os.makedirs("uploads", exist_ok=True)
+    
+    # Save audio file
+    # The original code used 'file.file' and 'shutil.copyfileobj'.
+    # The new instruction uses 'await audio.read()' and 'audio.filename'.
+    # Assuming 'file' parameter is the UploadFile object, we'll use its methods.
+    file_location = f"uploads/{file.filename}"
+    with open(file_location, "wb+") as file_object:
+        file_object.write(await file.read())
+    
+    # Mock analysis result (replace with actual AI analysis)
+    # The original temp file saving logic is replaced by the above.
+    temp_filename = file_location # Use the saved file for analysis
         
     try:
         # 2. Audio Analysis (Librosa)

@@ -27,6 +27,8 @@ class GitHubAuthRequest(BaseModel):
 class UserResponse(UserBase):
     id: int
     is_superadmin: bool
+    current_streak: int = 0
+    last_practice_date: Optional[datetime] = None
     
     class Config:
         orm_mode = True

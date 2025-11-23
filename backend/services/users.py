@@ -52,3 +52,48 @@ def toggle_admin_status(db: Session, user_id: int):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def update_user_streak(db: Session, user_id: int):
+    """
+    Update user's streak based on practice activity.
+    - If last practice was yesterday, increment streak.
+    - If last practice was today, do nothing.
+    - If last practice was older than yesterday, reset to 1.
+    - If no last practice, set to 1.
+    """
+    from datetime import datetime, timedelta
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+        
+    # Exclude admins from streak tracking
+    if user.is_superadmin:
+        return user
+        
+    now = datetime.utcnow()
+    today = now.date()
+    print(f"DEBUG: Checking streak. Today={today}, Last={user.last_practice_date}")
+    
+    if user.last_practice_date:
+        last_date = user.last_practice_date.date()
+        
+        if last_date == today:
+            # Already practiced today, just update the timestamp
+            user.last_practice_date = now
+        elif last_date == today - timedelta(days=1):
+            # Practiced yesterday, increment streak
+            user.current_streak += 1
+            user.last_practice_date = now
+        else:
+            # Missed a day or more, reset streak
+            user.current_streak = 1
+            user.last_practice_date = now
+    else:
+        # First time practicing
+        user.current_streak = 1
+        user.last_practice_date = now
+        
+    db.commit()
+    db.refresh(user)
+    return user
