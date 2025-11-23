@@ -18,6 +18,7 @@ const TopicsPage = ({ user }) => {
     const [loading, setLoading] = useState(true);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [pendingPath, setPendingPath] = useState(null);
+    const [showRecommended, setShowRecommended] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,7 +38,10 @@ const TopicsPage = ({ user }) => {
         fetchData();
     }, []);
 
-    // Filter topics based on search, category, and difficulty
+    // Get user's interests from onboarding data
+    const userInterests = user?.onboarding_data?.interests || [];
+
+    // Filter topics based on search, category, difficulty, and interests
     const filtered = topics.filter(topic => {
         const matchesSearch = topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             topic.description?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -46,8 +50,21 @@ const TopicsPage = ({ user }) => {
         return matchesSearch && matchesCategory && matchesDifficulty;
     });
 
-    const pageCount = Math.ceil(filtered.length / PAGE_SIZE);
-    const displayed = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    // Recommended topics based on user interests
+    const recommended = userInterests.length > 0 ? filtered.filter(topic => {
+        const topicCategory = topic.category?.name || '';
+        return userInterests.some(interest =>
+            topicCategory.toLowerCase().includes(interest.toLowerCase()) ||
+            topic.title.toLowerCase().includes(interest.toLowerCase()) ||
+            topic.description?.toLowerCase().includes(interest.toLowerCase())
+        );
+    }) : [];
+
+    // Topics to display (recommended first if showing, then others)
+    const topicsToShow = showRecommended && recommended.length > 0 ? recommended : filtered;
+
+    const pageCount = Math.ceil(topicsToShow.length / PAGE_SIZE);
+    const displayed = topicsToShow.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
     const handleCatChange = (catId) => {
         setSelectedCat(catId);
@@ -254,11 +271,39 @@ const TopicsPage = ({ user }) => {
                     )}
                 </div>
 
+                {/* Recommended Topics Banner */}
+                {user && recommended.length > 0 && (
+                    <div className="mb-6">
+                        <div className="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl shadow-lg p-6 text-white">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <Sparkles size={24} className="text-yellow-300" />
+                                    <div>
+                                        <h2 className="text-xl font-bold">Recommended for You</h2>
+                                        <p className="text-indigo-100 text-sm">Based on your interests: {userInterests.join(', ')}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setShowRecommended(!showRecommended)}
+                                    className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all font-medium text-sm backdrop-blur-sm"
+                                >
+                                    {showRecommended ? 'Show All Topics' : 'Show Recommended'}
+                                </button>
+                            </div>
+                            {showRecommended && (
+                                <div className="mt-4 text-sm text-indigo-100">
+                                    Showing {recommended.length} topic{recommended.length !== 1 ? 's' : ''} matching your interests
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {/* Results Count */}
                 <div className="mb-6 flex items-center justify-between">
                     <p className="text-gray-600">
                         Showing <span className="font-semibold text-gray-900">{displayed.length}</span> of{' '}
-                        <span className="font-semibold text-gray-900">{filtered.length}</span> topics
+                        <span className="font-semibold text-gray-900">{topicsToShow.length}</span> topics
                     </p>
                 </div>
 

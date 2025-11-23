@@ -13,7 +13,7 @@ from schemas import (
     UserSignup, UserLogin, Token, UserResponse, UserUpdate,
     AttemptResponse,
     ContactMessageCreate, ContactMessageResponse,
-    GoogleAuthRequest, GitHubAuthRequest
+    GoogleAuthRequest, GitHubAuthRequest, OnboardingUpdate
 )
 from services.topics import get_all_topics, get_topic_by_id, create_topic, delete_topic, create_custom_topic, update_topic
 from services.categories import (
@@ -102,7 +102,8 @@ def signup(user_data: UserSignup, db: Session = Depends(get_db)):
             "id": new_user.id,
             "username": new_user.username,
             "email": new_user.email,
-            "is_superadmin": new_user.is_superadmin
+            "is_superadmin": new_user.is_superadmin,
+            "onboarding_completed": new_user.onboarding_completed
         }
     }
 
@@ -130,7 +131,8 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "is_superadmin": user.is_superadmin
+            "is_superadmin": user.is_superadmin,
+            "onboarding_completed": user.onboarding_completed
         }
     }
 
@@ -187,7 +189,8 @@ def google_auth(auth_request: GoogleAuthRequest, db: Session = Depends(get_db)):
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "is_superadmin": user.is_superadmin
+            "is_superadmin": user.is_superadmin,
+            "onboarding_completed": user.onboarding_completed
         }
     }
 
@@ -258,7 +261,8 @@ def github_auth(auth_request: GitHubAuthRequest, db: Session = Depends(get_db)):
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "is_superadmin": user.is_superadmin
+            "is_superadmin": user.is_superadmin,
+            "onboarding_completed": user.onboarding_completed
         }
     }
 
@@ -274,6 +278,18 @@ def update_my_profile(
 ):
     updated_user = update_user(db, current_user.id, user_update)
     return updated_user
+
+@app.post("/users/onboarding", response_model=UserResponse)
+def complete_onboarding(
+    onboarding_data: OnboardingUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    current_user.onboarding_data = onboarding_data.onboarding_data
+    current_user.onboarding_completed = True
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 @app.put("/admin/users/{user_id}", response_model=UserResponse)
 def admin_update_user(

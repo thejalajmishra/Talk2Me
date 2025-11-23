@@ -38,7 +38,6 @@ const LoginPage = ({ onLogin }) => {
             };
 
             onLogin(userData);
-            navigate('/profile');
         } catch (error) {
             console.error('Login failed:', error);
             showAlert('error', error.response?.data?.detail || 'Login failed. Please check your credentials.');
@@ -64,7 +63,6 @@ const LoginPage = ({ onLogin }) => {
                 };
 
                 onLogin(userData);
-                navigate('/profile');
 
             } catch (error) {
                 console.error('Google login failed:', error);
@@ -105,7 +103,6 @@ const LoginPage = ({ onLogin }) => {
                     };
 
                     onLogin(userData);
-                    navigate('/profile');
 
                 } catch (error) {
                     console.error('GitHub login failed:', error);
