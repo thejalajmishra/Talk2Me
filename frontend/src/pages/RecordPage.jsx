@@ -15,7 +15,7 @@ const RecordPage = () => {
     const [topic, setTopic] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     // Get current user from localStorage for analysis request
-    const user = JSON.parse(localStorage.getItem('talk2me_user'));
+    const user = React.useMemo(() => JSON.parse(localStorage.getItem('talk2me_user')), []);
 
     useEffect(() => {
         // Redirect if not logged in and not guest
@@ -44,7 +44,7 @@ const RecordPage = () => {
 
         // Create FormData
         const formData = new FormData();
-        formData.append('file', audioBlob, 'speech.webm');
+        formData.append('audio', audioBlob, 'speech.webm');
         formData.append('topic_id', topicId);
 
         // Attach the logged‑in user's ID so the backend can associate the attempt

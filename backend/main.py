@@ -20,7 +20,7 @@ from services.categories import (
 )
 from services.users import get_all_users, get_user_by_id, update_user, delete_user, toggle_admin_status
 from services.attempts import get_all_attempts, delete_attempt, get_attempts_by_user
-from services.analysis import analyze_audio
+from ai_engine.pipeline import process_attempt
 from services.leaderboard import get_leaderboard
 from services.contact import create_contact_message, get_all_contact_messages
 from auth import get_password_hash, verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
@@ -349,7 +349,7 @@ async def analyze_speech(
     user_id: Optional[int] = Form(None),
     db: Session = Depends(get_db)
 ):
-    result = await analyze_audio(audio, topic_id, user_id, db)
+    result = await process_attempt(audio, topic_id, user_id, db)
     return result
 
 @app.get("/leaderboard", response_model=List[dict])
