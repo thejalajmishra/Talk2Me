@@ -9,6 +9,16 @@ def migrate_profile_pictures():
     engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={'check_same_thread': False})
     
     with engine.connect() as conn:
+        # Ensure the column exists
+        try:
+            conn.execute(text("ALTER TABLE users ADD COLUMN profile_picture TEXT"))
+            print("✅ Added 'profile_picture' column to 'users' table.")
+        except Exception as e:
+            if "duplicate column name" in str(e).lower() or "already exists" in str(e).lower():
+                print("⚠️ Column 'profile_picture' already exists.")
+            else:
+                print(f"❌ Error adding column 'profile_picture': {e}")
+                raise
         # Update all users with NULL profile_picture to 'avatar1'
         result = conn.execute(
             text("UPDATE users SET profile_picture = 'avatar1' WHERE profile_picture IS NULL")
