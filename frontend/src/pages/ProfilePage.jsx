@@ -168,7 +168,21 @@ const ProfilePage = ({ user, onUpdate }) => {
             const canvas = await html2canvas(reportDiv, {
                 scale: 2,
                 useCORS: true,
-                logging: false
+                logging: false,
+                backgroundColor: '#ffffff',
+                onclone: (clonedDoc) => {
+                    // Replace any oklch colors with hex equivalents
+                    const elements = clonedDoc.querySelectorAll('*');
+                    elements.forEach(el => {
+                        const computedStyle = window.getComputedStyle(el);
+                        if (computedStyle.backgroundColor && computedStyle.backgroundColor.includes('oklch')) {
+                            el.style.backgroundColor = '#ffffff';
+                        }
+                        if (computedStyle.color && computedStyle.color.includes('oklch')) {
+                            el.style.color = '#000000';
+                        }
+                    });
+                }
             });
 
             document.body.removeChild(reportDiv);
