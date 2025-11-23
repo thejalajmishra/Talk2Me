@@ -250,6 +250,7 @@ def update_my_profile(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    print(f"DEBUG: Updating user {current_user.id} with data: {user_update}")
     updated_user = update_user(db, current_user.id, user_update)
     return updated_user
 

@@ -18,6 +18,7 @@ import RecordPage from './pages/RecordPage';
 import ResultsPage from './pages/ResultsPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage';
 import WelcomePage from './pages/WelcomePage';
 import InsightsPage from './pages/InsightsPage';
 import LearningPage from './pages/LearningPage';
@@ -40,9 +41,15 @@ function App() {
   }, [user, location.pathname, navigate]);
 
   const handleLogin = (userData) => {
-    setUser(userData);
-    localStorage.setItem('talk2me_user', JSON.stringify(userData));
-    if (userData.is_superadmin) {
+    // If updating profile, preserve the existing token if not provided in new data
+    const updatedUser = {
+      ...userData,
+      token: userData.token || user?.token || userData.access_token
+    };
+
+    setUser(updatedUser);
+    localStorage.setItem('talk2me_user', JSON.stringify(updatedUser));
+    if (updatedUser.is_superadmin) {
       navigate('/admin');
     }
   };
@@ -87,6 +94,7 @@ function App() {
           <Route path="/insights" element={<InsightsPage user={user} />} />
           <Route path="/learning" element={<LearningPage />} />
           <Route path="/profile" element={<ProfilePage user={user} onUpdate={handleLogin} />} />
+          <Route path="/profile/edit" element={<EditProfilePage user={user} onUpdate={handleLogin} />} />
           <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
           <Route path="/signup" element={<SignupPage onLogin={handleLogin} />} />
           <Route path="/auth/github/callback" element={<GitHubCallback />} />

@@ -16,16 +16,21 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        print(f"DEBUG: Verifying token: {token[:10]}...")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id_str = payload.get("sub")
+        print(f"DEBUG: Token payload: {payload}")
         if user_id_str is None:
+            print("DEBUG: No sub in payload")
             raise credentials_exception
         user_id = int(user_id_str)
-    except (JWTError, ValueError, TypeError):
+    except (JWTError, ValueError, TypeError) as e:
+        print(f"DEBUG: Token validation error: {e}")
         raise credentials_exception
     
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
+        print(f"DEBUG: User {user_id} not found in DB")
         raise credentials_exception
     return user
 

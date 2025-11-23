@@ -29,6 +29,7 @@ class UserResponse(UserBase):
     is_superadmin: bool
     current_streak: int = 0
     last_practice_date: Optional[datetime] = None
+    profile_picture: Optional[str] = None
     
     class Config:
         orm_mode = True
@@ -37,6 +38,7 @@ class UserUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
+    profile_picture: Optional[str] = None
 
 class TopicBase(BaseModel):
     title: str

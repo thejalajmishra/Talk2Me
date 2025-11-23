@@ -18,6 +18,7 @@ class User(Base):
     # Streak Tracking
     current_streak = Column(Integer, default=0)
     last_practice_date = Column(DateTime, nullable=True)
+    profile_picture = Column(String, nullable=True)
     
     attempts = relationship("Attempt", back_populates="user")
 

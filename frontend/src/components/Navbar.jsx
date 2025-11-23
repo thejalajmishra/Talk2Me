@@ -54,8 +54,12 @@ const Navbar = ({ user, onLogout }) => {
                                         onClick={() => setDropdownOpen(!dropdownOpen)}
                                         className="flex items-center gap-2 focus:outline-none group"
                                     >
-                                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 border border-indigo-200 group-hover:bg-indigo-200 transition-colors">
-                                            <User size={20} />
+                                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 border border-indigo-200 group-hover:bg-indigo-200 transition-colors overflow-hidden">
+                                            {user.profile_picture ? (
+                                                <span className="text-xl">{user.profile_picture}</span>
+                                            ) : (
+                                                <User size={20} />
+                                            )}
                                         </div>
                                         <ChevronDown size={16} className={`text-gray-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
                                     </button>

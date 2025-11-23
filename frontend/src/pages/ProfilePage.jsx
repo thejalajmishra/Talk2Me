@@ -7,12 +7,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 const ProfilePage = ({ user, onUpdate }) => {
     const navigate = useNavigate();
-    const [isEditing, setIsEditing] = useState(false);
-    const [editData, setEditData] = useState({
-        username: '',
-        email: '',
-        password: ''
-    });
     const [attempts, setAttempts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -34,46 +28,6 @@ const ProfilePage = ({ user, onUpdate }) => {
         } catch (error) {
             console.error("Failed to fetch attempts", error);
             setLoading(false);
-        }
-    };
-
-    const handleEdit = () => {
-        setEditData({
-            username: user.username,
-            email: user.email,
-            password: ''
-        });
-        setIsEditing(true);
-    };
-
-    const handleCancel = () => {
-        setIsEditing(false);
-        setEditData({ username: '', email: '', password: '' });
-    };
-
-    const handleSave = async () => {
-        try {
-            const updatePayload = {
-                username: editData.username,
-                email: editData.email
-            };
-            if (editData.password) {
-                updatePayload.password = editData.password;
-            }
-
-            const response = await axios.put('http://localhost:8000/users/me', updatePayload, {
-                headers: { 'Authorization': `Bearer ${user.token}` }
-            });
-
-            // Update local user state
-            const updatedUser = { ...user, ...response.data };
-            onUpdate(updatedUser);
-
-            setIsEditing(false);
-            showAlert('success', 'Profile updated successfully!', 'Success');
-        } catch (error) {
-            console.error("Failed to update profile", error);
-            showAlert('error', error.response?.data?.detail || 'Failed to update profile', 'Error');
         }
     };
 
@@ -112,41 +66,13 @@ const ProfilePage = ({ user, onUpdate }) => {
                         <div className="relative flex justify-between items-end -mt-12 mb-6">
                             <div className="flex items-end">
                                 <div className="h-24 w-24 bg-white rounded-full p-1 shadow-lg">
-                                    <div className="h-full w-full bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
-                                        <User size={40} />
+                                    <div className="h-full w-full bg-indigo-50 rounded-full flex items-center justify-center text-4xl border-2 border-indigo-100">
+                                        {user.profile_picture || <User size={40} className="text-indigo-300" />}
                                     </div>
                                 </div>
                                 <div className="ml-4 mb-1 flex-1">
-                                    {isEditing ? (
-                                        <div className="space-y-2">
-                                            <input
-                                                type="text"
-                                                value={editData.username}
-                                                onChange={(e) => setEditData({ ...editData, username: e.target.value })}
-                                                className="block w-full px-3 py-1 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                                placeholder="Username"
-                                            />
-                                            <input
-                                                type="email"
-                                                value={editData.email}
-                                                onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                                                className="block w-full px-3 py-1 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                                placeholder="Email"
-                                            />
-                                            <input
-                                                type="password"
-                                                value={editData.password}
-                                                onChange={(e) => setEditData({ ...editData, password: e.target.value })}
-                                                className="block w-full px-3 py-1 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                                placeholder="New Password (optional)"
-                                            />
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <h1 className="text-2xl font-bold text-gray-900">{user.username}</h1>
-                                            <p className="text-gray-500">{user.email}</p>
-                                        </>
-                                    )}
+                                    <h1 className="text-2xl font-bold text-gray-900">{user.username}</h1>
+                                    <p className="text-gray-500">{user.email}</p>
                                 </div>
                             </div>
                             <div className="mb-1 flex flex-col items-end space-y-2">
@@ -154,29 +80,12 @@ const ProfilePage = ({ user, onUpdate }) => {
                                     <Calendar size={16} className="mr-1" /> Joined {new Date(user.created_at).toLocaleDateString()}
                                 </div>
                                 <div>
-                                    {isEditing ? (
-                                        <div className="flex space-x-2">
-                                            <button
-                                                onClick={handleSave}
-                                                className="flex items-center px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                                            >
-                                                <Save size={16} className="mr-1" /> Save
-                                            </button>
-                                            <button
-                                                onClick={handleCancel}
-                                                className="flex items-center px-3 py-1 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
-                                            >
-                                                <X size={16} className="mr-1" /> Cancel
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={handleEdit}
-                                            className="flex items-center px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
-                                        >
-                                            <Edit2 size={16} className="mr-1" /> Edit Profile
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={() => navigate('/profile/edit')}
+                                        className="flex items-center px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
+                                    >
+                                        <Edit2 size={16} className="mr-1" /> Edit Profile
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -283,8 +192,8 @@ const ProfilePage = ({ user, onUpdate }) => {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${attempt.overall_score >= 80 ? 'bg-green-100 text-green-800' :
-                                                            attempt.overall_score >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                                                                'bg-red-100 text-red-800'
+                                                        attempt.overall_score >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                                                            'bg-red-100 text-red-800'
                                                         }`}>
                                                         {attempt.overall_score}
                                                     </span>
