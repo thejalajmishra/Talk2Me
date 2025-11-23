@@ -15,7 +15,7 @@ const CustomTopicPage = ({ user }) => {
     const [audioChunks, setAudioChunks] = useState([]);
     const [transcript, setTranscript] = useState('');
     const [recognition, setRecognition] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!user) {
@@ -142,7 +142,7 @@ const CustomTopicPage = ({ user }) => {
             return;
         }
 
-        setIsSubmitting(true);
+        setLoading(true);
 
         try {
             const token = user.token;
@@ -164,7 +164,7 @@ const CustomTopicPage = ({ user }) => {
             console.error('Failed to create custom topic:', error);
             showAlert('error', 'Failed to create custom topic. Please try again.');
         } finally {
-            setIsSubmitting(false);
+            setLoading(false);
         }
     };
 
@@ -257,11 +257,11 @@ const CustomTopicPage = ({ user }) => {
                         {transcript && !isRecording && (
                             <button
                                 onClick={handleSubmit}
-                                disabled={isSubmitting}
+                                disabled={loading}
                                 className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Send size={20} />
-                                <span>{isSubmitting ? 'Creating...' : 'Create Custom Topic'}</span>
+                                <span>{loading ? 'Creating...' : 'Create Custom Topic'}</span>
                             </button>
                         )}
                     </div>

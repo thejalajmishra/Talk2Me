@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import API_URL from '../config/api';
-import { Mail, MessageSquare, User, Send, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Mail, MessageSquare, User, Send, ArrowLeft, Phone, MapPin } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { showAlert } from '../utils/alert';
 import SEO from '../components/SEO';
 
@@ -34,7 +34,7 @@ const ContactUs = () => {
             showAlert('error', 'Failed to send message. Please try again.');
             console.error('Contact form error:', error);
         } finally {
-            setIsSubmitting(false);
+            setLoading(false);
         }
     };
 
@@ -163,11 +163,11 @@ const ContactUs = () => {
 
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting}
+                                    disabled={loading}
                                     className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                                 >
                                     <Send size={20} />
-                                    <span>{isSubmitting ? 'Sending...' : 'Send Message'}</span>
+                                    <span>{loading ? 'Sending...' : 'Send Message'}</span>
                                 </button>
                             </form>
                         </div>
