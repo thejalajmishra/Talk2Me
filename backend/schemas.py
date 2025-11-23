@@ -40,6 +40,7 @@ class TopicBase(BaseModel):
     title: str
     difficulty: str
     description: Optional[str] = None
+    time_limit: Optional[int] = 60
     category_id: Optional[int] = None
 
 class TopicCreate(TopicBase):

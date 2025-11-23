@@ -1,7 +1,9 @@
 from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
+import os
 
 from database import engine, get_db
 from models import Base, User
@@ -47,6 +49,14 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.get("/uploads/{filename}")
+def get_audio_file(filename: str):
+    """Serve audio files from the uploads directory"""
+    file_path = os.path.join("uploads", filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Audio file not found")
+    return FileResponse(file_path, media_type="audio/webm")
 
 # Auth endpoints
 @app.post("/auth/signup", response_model=Token)

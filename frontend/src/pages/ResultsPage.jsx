@@ -110,6 +110,14 @@ const ResultsPage = () => {
                                     </div>
                                     <div className="text-3xl font-bold text-gray-900">{metrics.clarity}%</div>
                                 </div>
+                                <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                                    <div className="flex items-center gap-2 text-gray-500 mb-2">
+                                        <Award size={18} />
+                                        <span className="text-sm font-medium">Topic Match</span>
+                                    </div>
+                                    <div className="text-3xl font-bold text-gray-900">{feedback.content_match_score || 0}%</div>
+                                    <div className="text-xs text-indigo-600 mt-1 font-medium">How well you addressed the topic</div>
+                                </div>
                             </div>
                         </div>
 
@@ -128,6 +136,29 @@ const ResultsPage = () => {
                                     ))}
                                 </ul>
                             </div>
+
+                            {feedback.diff_analysis && feedback.diff_analysis.length > 0 && (
+                                <div className="md:col-span-2">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Speech Accuracy</h3>
+                                    <div className="bg-white p-6 rounded-2xl border border-gray-200 text-lg leading-relaxed shadow-sm">
+                                        {feedback.diff_analysis.map((segment, idx) => (
+                                            <span
+                                                key={idx}
+                                                className={`${segment.status === 'matched' ? 'font-bold text-green-600' :
+                                                    segment.status === 'missed' ? 'text-red-500 bg-red-50 px-1 rounded mx-0.5' : ''
+                                                    } mr-1`}
+                                                title={segment.status === 'missed' ? 'Missed' : 'Matched'}
+                                            >
+                                                {segment.text}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <div className="flex gap-4 mt-3 text-sm font-medium text-gray-600">
+                                        <div className="flex items-center gap-2"><span className="w-3 h-3 bg-green-600 rounded-full"></span> Spoken Correctly</div>
+                                        <div className="flex items-center gap-2"><span className="w-3 h-3 bg-red-500 rounded-full"></span> Missed / Incorrect</div>
+                                    </div>
+                                </div>
+                            )}
 
                             <div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-4">Transcript</h3>
