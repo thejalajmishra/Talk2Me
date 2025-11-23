@@ -27,9 +27,14 @@ class GitHubAuthRequest(BaseModel):
 class UserResponse(UserBase):
     id: int
     is_superadmin: bool
+    created_at: datetime
+    onboarding_completed: bool = False
     
     class Config:
         orm_mode = True
+
+class OnboardingUpdate(BaseModel):
+    onboarding_data: dict
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None

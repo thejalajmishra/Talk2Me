@@ -15,6 +15,8 @@ class User(Base):
     is_superadmin = Column(Boolean, default=False)
     profile_picture = Column(String, nullable=True, default="avatar1")  # Stores avatar identifier
     created_at = Column(DateTime, default=datetime.utcnow)
+    onboarding_completed = Column(Boolean, default=False)
+    onboarding_data = Column(JSON, nullable=True)
     
     attempts = relationship("Attempt", back_populates="user")
     user_achievements = relationship("UserAchievement", back_populates="user")
