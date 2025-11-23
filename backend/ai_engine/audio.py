@@ -15,10 +15,15 @@ def analyze_audio_features(file_path: str):
         spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
         avg_pitch = float(np.mean(spectral_centroids))
         
+        # Volume analysis (RMS)
+        rms = librosa.feature.rms(y=y)[0]
+        avg_volume = float(np.mean(rms))
+        
         return {
             "duration": duration,
             "tempo": float(tempo),
             "avg_pitch": avg_pitch,
+            "avg_volume": avg_volume,
             "success": True
         }
     except Exception as e:
@@ -27,7 +32,8 @@ def analyze_audio_features(file_path: str):
             "duration": 0.0,
             "tempo": 0.0,
             "avg_pitch": 0.0,
+            "avg_volume": 0.0,
             "success": False,
             "error": str(e)
-            
+
         }

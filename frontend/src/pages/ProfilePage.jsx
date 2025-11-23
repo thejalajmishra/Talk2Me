@@ -80,13 +80,13 @@ const ProfilePage = ({ user, onUpdate }) => {
 
     // Calculate Stats
     const totalAttempts = attempts.length;
-    const avgScore = totalAttempts > 0 ? (attempts.reduce((acc, curr) => acc + curr.overall_score, 0) / totalAttempts).toFixed(1) : 0;
-    const bestScore = totalAttempts > 0 ? Math.max(...attempts.map(a => a.overall_score)).toFixed(1) : 0;
+    const avgScore = totalAttempts > 0 ? (attempts.reduce((acc, curr) => acc + curr.score, 0) / totalAttempts).toFixed(1) : 0;
+    const bestScore = totalAttempts > 0 ? Math.max(...attempts.map(a => a.score)).toFixed(1) : 0;
 
     // Prepare Chart Data (sort by date)
     const chartData = [...attempts].sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map((a, index) => ({
         name: `Attempt ${index + 1}`,
-        score: a.overall_score,
+        score: a.score,
         wpm: a.wpm,
         date: new Date(a.created_at).toLocaleDateString()
     }));
@@ -287,18 +287,18 @@ const ProfilePage = ({ user, onUpdate }) => {
                                                     {attempt.topic?.title || 'Custom Topic'}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${attempt.overall_score >= 80 ? 'bg-green-100 text-green-800' :
-                                                        attempt.overall_score >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${attempt.score >= 80 ? 'bg-green-100 text-green-800' :
+                                                        attempt.score >= 60 ? 'bg-yellow-100 text-yellow-800' :
                                                             'bg-red-100 text-red-800'
                                                         }`}>
-                                                        {attempt.overall_score}
+                                                        {attempt.score}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {attempt.wpm}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {attempt.tone_analysis ? JSON.parse(attempt.tone_analysis).primary_tone : 'N/A'}
+                                                    {attempt.feedback_json?.tone || 'N/A'}
                                                 </td>
                                             </tr>
                                         ))}

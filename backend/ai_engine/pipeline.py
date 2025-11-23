@@ -30,6 +30,23 @@ async def process_attempt(file: UploadFile, topic_id: int, user_id: int, db: Ses
         # 2. Audio Analysis
         audio_metrics = analyze_audio_features(temp_filename)
         duration = audio_metrics.get("duration", 0)
+        avg_volume = audio_metrics.get("avg_volume", 0)
+
+        # Silence Detection (Threshold: 0.005 is very quiet)
+        if avg_volume < 0.005:
+            return {
+                "id": None,
+                "transcript": "No speech detected (Audio too quiet)",
+                "duration": round(duration, 2),
+                "wpm": 0,
+                "filler_count": 0,
+                "score": 0,
+                "metrics": {"pace": 0, "clarity": 0, "confidence": 0},
+                "feedback": {
+                    "tone": "Silent",
+                    "improvement_plan": ["Please speak louder or check your microphone."]
+                }
+            }
 
         # 3. Transcription
         transcript = transcribe_audio(client, temp_filename)
@@ -48,26 +65,29 @@ async def process_attempt(file: UploadFile, topic_id: int, user_id: int, db: Ses
             "improvement_plan": feedback_result.get("improvement_plan", [])
         }
 
-        # 5. Save to DB
-        user = db.query(User).filter(User.id == user_id).first()
-        if not user:
-            return {"error": "User not found"}
+        # 5. Save to DB (Only for logged-in users)
+        attempt_id = None
+        if user_id:
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return {"error": "User not found"}
 
-        attempt = Attempt(
-            user_id=user.id,
-            topic_id=topic_id,
-            transcript=transcript,
-            wpm=wpm,
-            filler_count=filler_count,
-            score=overall_score,
-            feedback_json=feedback_data
-        )
-        db.add(attempt)
-        db.commit()
-        db.refresh(attempt)
+            attempt = Attempt(
+                user_id=user.id,
+                topic_id=topic_id,
+                transcript=transcript,
+                wpm=wpm,
+                filler_count=filler_count,
+                score=overall_score,
+                feedback_json=feedback_data
+            )
+            db.add(attempt)
+            db.commit()
+            db.refresh(attempt)
+            attempt_id = attempt.id
         
         return {
-            "id": attempt.id,
+            "id": attempt_id,
             "transcript": transcript,
             "duration": round(duration, 2),
             "wpm": round(wpm, 1),
