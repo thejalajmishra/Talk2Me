@@ -301,7 +301,7 @@ const ProfilePage = ({ user, onUpdate }) => {
                                         </div>
                                     ) : (
                                         <button
-                                            onClick={handleEdit}
+                                            onClick={() => navigate('/profile/edit')}
                                             className="flex items-center px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
                                         >
                                             <Edit2 size={16} className="mr-1" /> Edit Profile
