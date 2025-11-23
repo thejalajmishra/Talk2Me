@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, JSON, DateTime, ForeignKey, Float, Boolean
+from sqlalchemy import Column, Integer, String, Text, JSON, DateTime, ForeignKey, Float, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
@@ -16,6 +16,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     attempts = relationship("Attempt", back_populates="user")
+    user_achievements = relationship("UserAchievement", back_populates="user")
 
 class Category(Base):
     __tablename__ = "categories"
@@ -72,3 +73,30 @@ class ContactMessage(Base):
     subject = Column(String, nullable=True)
     message = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Achievement(Base):
+    __tablename__ = "achievements"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String, unique=True, index=True, nullable=False)  # e.g., 'hello_speaker'
+    title = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    icon_name = Column(String, nullable=False)  # e.g., 'Award', 'Star', 'Flame'
+    gradient = Column(String, nullable=False)  # e.g., 'from-blue-500 to-cyan-500'
+    unlock_condition = Column(JSON, nullable=False)  # e.g., {"type": "streak", "threshold": 5}
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    user_achievements = relationship("UserAchievement", back_populates="achievement")
+
+class UserAchievement(Base):
+    __tablename__ = "user_achievements"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    achievement_id = Column(Integer, ForeignKey("achievements.id"), nullable=False)
+    unlocked_at = Column(DateTime, default=datetime.utcnow)
+    
+    user = relationship("User", back_populates="user_achievements")
+    achievement = relationship("Achievement", back_populates="user_achievements")
+    
+    __table_args__ = (UniqueConstraint('user_id', 'achievement_id', name='_user_achievement_uc'),)
