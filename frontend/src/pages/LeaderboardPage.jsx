@@ -5,12 +5,13 @@ import { ArrowLeft, Trophy, Medal } from 'lucide-react';
 
 const LeaderboardPage = () => {
     const [leaders, setLeaders] = useState([]);
+    const [activeTab, setActiveTab] = useState('top'); // 'top' or 'average'
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/leaderboard');
+                const response = await axios.get(`http://localhost:8000/leaderboard?type=${activeTab}`);
                 setLeaders(response.data);
             } catch (error) {
                 console.error("Failed to fetch leaderboard", error);
@@ -23,7 +24,7 @@ const LeaderboardPage = () => {
             }
         };
         fetchLeaderboard();
-    }, []);
+    }, [activeTab]);
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
@@ -35,11 +36,35 @@ const LeaderboardPage = () => {
                     <ArrowLeft size={20} className="mr-2" /> Back to Topics
                 </button>
 
-                <div className="text-center mb-12">
+                <div className="text-center mb-8">
                     <h1 className="text-4xl font-extrabold text-gray-900 mb-4 flex items-center justify-center gap-3">
                         <Trophy className="text-yellow-500" size={40} /> Leaderboard
                     </h1>
                     <p className="text-lg text-gray-600">Top speakers of the week</p>
+                </div>
+
+                {/* Tabs */}
+                <div className="flex justify-center mb-8">
+                    <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 inline-flex">
+                        <button
+                            onClick={() => setActiveTab('top')}
+                            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'top'
+                                    ? 'bg-indigo-600 text-white shadow-md'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                                }`}
+                        >
+                            Top Attempt
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('average')}
+                            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'average'
+                                    ? 'bg-indigo-600 text-white shadow-md'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                                }`}
+                        >
+                            Average Score
+                        </button>
+                    </div>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
@@ -49,6 +74,7 @@ const LeaderboardPage = () => {
                                 <th className="p-6">Rank</th>
                                 <th className="p-6">User</th>
                                 <th className="p-6">Topic</th>
+                                {activeTab === 'average' && <th className="p-6 text-center">Attempts</th>}
                                 <th className="p-6 text-right">Score</th>
                             </tr>
                         </thead>
@@ -65,6 +91,13 @@ const LeaderboardPage = () => {
                                     </td>
                                     <td className="p-6 font-medium text-gray-900">{item.user}</td>
                                     <td className="p-6 text-gray-600">{item.topic}</td>
+                                    {activeTab === 'average' && (
+                                        <td className="p-6 text-center text-gray-600">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs font-medium">
+                                                {item.attempts}
+                                            </span>
+                                        </td>
+                                    )}
                                     <td className="p-6 text-right">
                                         <span className="inline-block bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-bold">
                                             {item.score}
@@ -74,7 +107,9 @@ const LeaderboardPage = () => {
                             ))}
                             {leaders.length === 0 && (
                                 <tr>
-                                    <td colSpan="4" className="p-10 text-center text-gray-500">No records yet. Be the first!</td>
+                                    <td colSpan={activeTab === 'average' ? 5 : 4} className="p-10 text-center text-gray-500">
+                                        No records yet. Be the first!
+                                    </td>
                                 </tr>
                             )}
                         </tbody>
