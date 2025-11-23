@@ -363,8 +363,8 @@ async def analyze_speech(
     return result
 
 @app.get("/leaderboard", response_model=List[dict])
-def read_leaderboard(db: Session = Depends(get_db)):
-    return get_leaderboard(db)
+def read_leaderboard(type: str = "top", db: Session = Depends(get_db)):
+    return get_leaderboard(db, leaderboard_type=type)
 
 # Category endpoints
 @app.get("/categories", response_model=List[Category])
