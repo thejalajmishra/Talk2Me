@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../../config/api';
 import { Trash2 } from 'lucide-react';
 import { showAlert } from '../../utils/alert';
 
@@ -16,7 +17,7 @@ const AdminAttempts = ({ user }) => {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:8000/admin/attempts', {
+            const response = await axios.get(`${API_URL}/admin/attempts`, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setAttempts(response.data);
@@ -29,7 +30,7 @@ const AdminAttempts = ({ user }) => {
         const result = await showAlert('warning', 'Are you sure you want to delete this attempt? This action cannot be undone.', 'Delete Attempt', true);
         if (result.isConfirmed) {
             try {
-                await axios.delete(`http://localhost:8000/admin/attempts/${attemptId}`, {
+                await axios.delete(`${API_URL}/admin/attempts/${attemptId}`, {
                     headers: { 'Authorization': `Bearer ${user.token}` }
                 });
                 fetchAttempts();

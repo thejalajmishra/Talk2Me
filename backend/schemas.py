@@ -79,6 +79,7 @@ class AttemptResponse(AttemptBase):
     score: Optional[int]
     feedback_json: Optional[Dict[str, Any]]
     created_at: datetime
+    topic: Optional['Topic'] = None
     
     class Config:
         orm_mode = True

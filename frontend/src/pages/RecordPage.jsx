@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { showAlert } from '../utils/alert';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config/api';
 import Recorder from '../components/Recorder';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import SEO from '../components/SEO';
@@ -30,7 +31,7 @@ const RecordPage = () => {
         // Fetch topic details
         const fetchTopic = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/topics/${topicId}`);
+                const response = await axios.get(`${API_URL}/topics/${topicId}`);
                 setTopic(response.data);
             } catch (error) {
                 console.error("Failed to fetch topic", error);
@@ -56,7 +57,7 @@ const RecordPage = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:8000/analyze', formData, {
+            const response = await axios.post(`${API_URL}/analyze`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config/api';
+import { Mail, MessageSquare, User, Send, ArrowLeft, Phone, MapPin } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { showAlert } from '../utils/alert';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import SEO from '../components/SEO';
 
 const ContactUs = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        subject: '',
         message: ''
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
@@ -23,17 +24,17 @@ const ContactUs = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
+        setLoading(true);
 
         try {
-            await axios.post('http://localhost:8000/contact', formData);
+            await axios.post(`${API_URL}/contact`, formData);
             showAlert('success', 'Message sent successfully! We\'ll get back to you soon.');
-            setFormData({ name: '', email: '', subject: '', message: '' });
+            setFormData({ name: '', email: '', message: '' });
         } catch (error) {
             showAlert('error', 'Failed to send message. Please try again.');
             console.error('Contact form error:', error);
         } finally {
-            setIsSubmitting(false);
+            setLoading(false);
         }
     };
 
@@ -162,11 +163,11 @@ const ContactUs = () => {
 
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting}
+                                    disabled={loading}
                                     className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                                 >
                                     <Send size={20} />
-                                    <span>{isSubmitting ? 'Sending...' : 'Send Message'}</span>
+                                    <span>{loading ? 'Sending...' : 'Send Message'}</span>
                                 </button>
                             </form>
                         </div>

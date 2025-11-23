@@ -8,7 +8,7 @@ const AdminLayout = ({ children, user, onLogout }) => {
 
     const menuItems = [
         { path: '/admin', icon: LayoutGrid, label: 'Dashboard', exact: true },
-        { path: '/admin/topics', icon: LayoutGrid, label: 'Topics' },
+        { path: '/admin/topics', icon: LayoutGrid, label: 'Topic Library' },
         { path: '/admin/categories', icon: FolderOpen, label: 'Categories' },
         { path: '/admin/users', icon: Users, label: 'Users' },
         { path: '/admin/attempts', icon: Mic, label: 'Voice Analysis' },
@@ -59,8 +59,8 @@ const AdminLayout = ({ children, user, onLogout }) => {
                                     key={item.path}
                                     to={item.path}
                                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${active
-                                            ? 'bg-indigo-50 text-indigo-600 font-medium'
-                                            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                        ? 'bg-indigo-50 text-indigo-600 font-medium'
+                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                                         }`}
                                 >
                                     <Icon size={20} />
@@ -127,8 +127,8 @@ const AdminLayout = ({ children, user, onLogout }) => {
                                             to={item.path}
                                             onClick={closeSidebar}
                                             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${active
-                                                    ? 'bg-indigo-50 text-indigo-600 font-medium'
-                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                                ? 'bg-indigo-50 text-indigo-600 font-medium'
+                                                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                                                 }`}
                                         >
                                             <Icon size={20} />

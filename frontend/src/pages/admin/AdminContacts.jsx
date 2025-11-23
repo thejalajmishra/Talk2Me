@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../../config/api';
 import { Mail, Calendar, User } from 'lucide-react';
 
 const AdminContacts = ({ user }) => {
@@ -12,7 +13,7 @@ const AdminContacts = ({ user }) => {
 
     const fetchContacts = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/admin/contacts', {
+            const response = await axios.get(`${API_URL}/admin/contacts`, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setContacts(response.data);

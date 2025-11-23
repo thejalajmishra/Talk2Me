@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Filter, Mic, Clock, TrendingUp, Sparkles, ChevronLeft, ChevronRight, Lock, User } from 'lucide-react';
 import SEO from '../components/SEO';
@@ -23,8 +24,8 @@ const TopicsPage = ({ user }) => {
         const fetchData = async () => {
             try {
                 const [tRes, cRes] = await Promise.all([
-                    axios.get('http://localhost:8000/topics'),
-                    axios.get('http://localhost:8000/categories'),
+                    axios.get(`${API_URL}/topics`),
+                    axios.get(`${API_URL}/categories`),
                 ]);
                 setTopics(tRes.data);
                 setCategories(cRes.data);

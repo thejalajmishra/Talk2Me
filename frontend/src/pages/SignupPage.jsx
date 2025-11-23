@@ -4,6 +4,7 @@ import { showAlert } from '../utils/alert';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Lock, User, UserPlus } from 'lucide-react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import SEO from '../components/SEO';
 
 const SignupPage = ({ onLogin }) => {
@@ -29,7 +30,7 @@ const SignupPage = ({ onLogin }) => {
         }
 
         try {
-            const response = await axios.post('http://localhost:8000/auth/signup', {
+            const response = await axios.post(`${API_URL}/auth/signup`, {
                 username: formData.username,
                 email: formData.email,
                 password: formData.password
@@ -56,7 +57,7 @@ const SignupPage = ({ onLogin }) => {
         onSuccess: async (tokenResponse) => {
             try {
                 // Send the access_token to the backend for verification
-                const res = await axios.post('http://localhost:8000/auth/google', {
+                const res = await axios.post(`${API_URL}/auth/google`, {
                     token: tokenResponse.access_token
                 });
 
@@ -97,7 +98,7 @@ const SignupPage = ({ onLogin }) => {
                 processedCodes.current.add(code);
 
                 try {
-                    const res = await axios.post('http://localhost:8000/auth/github', {
+                    const res = await axios.post(`${API_URL}/auth/github`, {
                         code: code
                     });
 

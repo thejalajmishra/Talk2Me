@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trophy, Medal } from 'lucide-react';
+import { ArrowLeft, Trophy, Medal, Award, TrendingUp, User } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const LeaderboardPage = () => {
+    const [leaderboard, setLeaderboard] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [leaders, setLeaders] = useState([]);
     const [activeTab, setActiveTab] = useState('top'); // 'top' or 'average'
     const navigate = useNavigate();
@@ -16,7 +20,7 @@ const LeaderboardPage = () => {
             } catch (error) {
                 console.error("Failed to fetch leaderboard", error);
                 // Fallback
-                setLeaders([
+                setLeaderboard([
                     { rank: 1, user: "Alice", topic: "Future of AI", score: 98, date: "2023-10-01" },
                     { rank: 2, user: "Bob", topic: "Climate Change", score: 95, date: "2023-10-02" },
                     { rank: 3, user: "Charlie", topic: "Leadership", score: 92, date: "2023-10-03" },
@@ -49,8 +53,8 @@ const LeaderboardPage = () => {
                         <button
                             onClick={() => setActiveTab('top')}
                             className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'top'
-                                    ? 'bg-indigo-600 text-white shadow-md'
-                                    : 'text-gray-600 hover:bg-gray-50'
+                                ? 'bg-indigo-600 text-white shadow-md'
+                                : 'text-gray-600 hover:bg-gray-50'
                                 }`}
                         >
                             Top Attempt
@@ -58,8 +62,8 @@ const LeaderboardPage = () => {
                         <button
                             onClick={() => setActiveTab('average')}
                             className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'average'
-                                    ? 'bg-indigo-600 text-white shadow-md'
-                                    : 'text-gray-600 hover:bg-gray-50'
+                                ? 'bg-indigo-600 text-white shadow-md'
+                                : 'text-gray-600 hover:bg-gray-50'
                                 }`}
                         >
                             Average Score

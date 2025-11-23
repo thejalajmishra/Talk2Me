@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Mic, BookOpen, Sparkles } from 'lucide-react';
+import API_URL from '../config/api';
+import { Mic, Search, Filter, ChevronRight, Clock, TrendingUp, Star } from 'lucide-react';
+import SEO from '../components/SEO';
 
-const TopicSelection = () => {
+const TopicSelection = ({ user }) => {
     const [topics, setTopics] = useState([]);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -12,7 +15,7 @@ const TopicSelection = () => {
         // We'll try to fetch, fallback to hardcoded if fails (for dev speed without running backend yet)
         const fetchTopics = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/topics');
+                const response = await axios.get(`${API_URL}/topics`);
                 setTopics(response.data);
             } catch (error) {
                 console.error("Failed to fetch topics, using fallback", error);

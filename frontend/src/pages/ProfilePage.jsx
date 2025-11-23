@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { ArrowLeft, User, Mic, Star, Calendar, Edit2, Save, X, TrendingUp, Activity, Clock, Eye, Download, FileText } from 'lucide-react';
 import { showAlert } from '../utils/alert';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
@@ -21,6 +22,10 @@ const ProfilePage = ({ user, onUpdate }) => {
     const [loading, setLoading] = useState(true);
     const [selectedAttempt, setSelectedAttempt] = useState(null);
     const [showReportModal, setShowReportModal] = useState(false);
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 5;
+    const paginatedAttempts = attempts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     useEffect(() => {
         if (user?.token) {
@@ -32,7 +37,7 @@ const ProfilePage = ({ user, onUpdate }) => {
 
     const fetchAttempts = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/users/me/attempts', {
+            const response = await axios.get(`${API_URL}/users/me/attempts`, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
             setAttempts(response.data);
@@ -67,7 +72,7 @@ const ProfilePage = ({ user, onUpdate }) => {
                 updatePayload.password = editData.password;
             }
 
-            const response = await axios.put('http://localhost:8000/users/me', updatePayload, {
+            const response = await axios.put(`${API_URL}/users/me`, updatePayload, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
 
@@ -168,7 +173,21 @@ const ProfilePage = ({ user, onUpdate }) => {
             const canvas = await html2canvas(reportDiv, {
                 scale: 2,
                 useCORS: true,
-                logging: false
+                logging: false,
+                backgroundColor: '#ffffff',
+                onclone: (clonedDoc) => {
+                    // Replace any oklch colors with hex equivalents
+                    const elements = clonedDoc.querySelectorAll('*');
+                    elements.forEach(el => {
+                        const computedStyle = window.getComputedStyle(el);
+                        if (computedStyle.backgroundColor && computedStyle.backgroundColor.includes('oklch')) {
+                            el.style.backgroundColor = '#ffffff';
+                        }
+                        if (computedStyle.color && computedStyle.color.includes('oklch')) {
+                            el.style.color = '#000000';
+                        }
+                    });
+                }
             });
 
             document.body.removeChild(reportDiv);
@@ -188,6 +207,46 @@ const ProfilePage = ({ user, onUpdate }) => {
         }
     };
 
+    const exportToCSV = () => {
+        if (attempts.length === 0) {
+            showAlert('info', 'No data to export.', 'Info');
+            return;
+        }
+
+        const headers = [
+            "Date", "Topic", "Score", "WPM", "Filler Words", "Tone", "Clarity", "Content Match Score", "Transcript"
+        ];
+
+        const csvRows = [];
+        csvRows.push(headers.join(','));
+
+        attempts.forEach(attempt => {
+            const feedback = attempt.feedback_json || {};
+            const row = [
+                `"${new Date(attempt.created_at).toLocaleDateString()}"`,
+                `"${(attempt.topic?.title || 'Custom Topic').replace(/"/g, '""')}"`,
+                attempt.score,
+                attempt.wpm,
+                attempt.filler_count,
+                `"${(feedback.tone || 'N/A').replace(/"/g, '""')}"`,
+                feedback.metrics?.clarity || 0,
+                feedback.content_match_score || 0,
+                `"${(attempt.transcript || 'N/A').replace(/"/g, '""')}"` // Escape double quotes
+            ];
+            csvRows.push(row.join(','));
+        });
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute('download', `Talk2Me_Attempts_Export_${new Date().toLocaleDateString()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showAlert('success', 'Attempts exported to CSV!', 'Success');
+    };
+
     // Calculate Stats
     const totalAttempts = attempts.length;
     const avgScore = totalAttempts > 0 ? (attempts.reduce((acc, curr) => acc + curr.score, 0) / totalAttempts).toFixed(1) : 0;
@@ -204,6 +263,12 @@ const ProfilePage = ({ user, onUpdate }) => {
 
     // Recent Activity (reverse chronological)
     const recentActivity = [...attempts].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+
+    const totalPages = Math.ceil(attempts.length / pageSize);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
 
     if (!user) return null;
 
@@ -378,7 +443,17 @@ const ProfilePage = ({ user, onUpdate }) => {
 
                         {/* Recent Attempts List */}
                         <div className="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                            <h3 className="text-lg font-bold text-gray-900 mb-6">Recent Analysis History</h3>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-lg font-bold text-gray-900">Analysis History</h3>
+                                <button
+                                    onClick={exportToCSV}
+                                    className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
+                                    title="Export to CSV"
+                                >
+                                    <Download size={16} />
+                                    Export CSV
+                                </button>
+                            </div>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
@@ -393,7 +468,7 @@ const ProfilePage = ({ user, onUpdate }) => {
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {recentActivity.map((attempt) => (
+                                        {paginatedAttempts.map((attempt) => (
                                             <tr key={attempt.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {new Date(attempt.created_at).toLocaleDateString()}
@@ -403,7 +478,7 @@ const ProfilePage = ({ user, onUpdate }) => {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {attempt.audio_url ? (
-                                                        <audio controls src={`http://localhost:8000/uploads/${attempt.audio_url}`} className="h-8 w-48" />
+                                                        <audio controls src={`${API_URL}/uploads/${attempt.audio_url}`} className="h-8 w-48" />
                                                     ) : (
                                                         <span className="text-gray-400 italic">Not available</span>
                                                     )}
@@ -572,7 +647,7 @@ const ProfilePage = ({ user, onUpdate }) => {
                             {selectedAttempt.audio_url && (
                                 <div className="mb-6">
                                     <h3 className="text-lg font-bold text-gray-900 mb-3">Audio Recording</h3>
-                                    <audio controls src={`http://localhost:8000/uploads/${selectedAttempt.audio_url}`} className="w-full" />
+                                    <audio controls src={`${API_URL}/uploads/${selectedAttempt.audio_url}`} className="w-full" />
                                 </div>
                             )}
 
