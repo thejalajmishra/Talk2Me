@@ -9,6 +9,39 @@ const WelcomePage = ({ user }) => {
     // Fallback if user is not passed correctly (though it should be protected)
     const username = user?.username || user?.name || 'User';
 
+    const [attempts, setAttempts] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+    const [error, setError] = React.useState(null);
+
+    React.useEffect(() => {
+        const fetchAttempts = async () => {
+            try {
+                // Get token from user object or localStorage
+                const token = user?.token || JSON.parse(localStorage.getItem('talk2me_user'))?.token;
+
+                if (token) {
+                    const response = await fetch('http://localhost:8000/users/me/attempts', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        setAttempts(data);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch attempts", err);
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAttempts();
+    }, [user]);
+
     const dailyQuote = {
         text: "Speech is power: speech is to persuade, to convert, to compel.",
         author: "Ralph Waldo Emerson"
@@ -61,10 +94,10 @@ const WelcomePage = ({ user }) => {
                                     <Activity className="w-5 h-5 text-indigo-600" />
                                     Your Activity
                                 </h2>
-                                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Last 365 Days</span>
+                                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Last 30 Days</span>
                             </div>
                             <div className="overflow-x-auto">
-                                <ContributionGraph />
+                                <ContributionGraph attempts={attempts} />
                             </div>
                         </div>
 

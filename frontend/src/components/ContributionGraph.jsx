@@ -1,28 +1,39 @@
 import React from 'react';
 
-const ContributionGraph = () => {
-    // Generate mock data for the last 365 days
-    const generateData = () => {
+const ContributionGraph = ({ attempts = [] }) => {
+    // Process attempts to get counts per day
+    const processData = () => {
         const data = [];
         const today = new Date();
-        for (let i = 0; i < 365; i++) {
+        const attemptsMap = {};
+
+        // Count attempts per day
+        attempts.forEach(attempt => {
+            const date = new Date(attempt.created_at).toDateString();
+            attemptsMap[date] = (attemptsMap[date] || 0) + 1;
+        });
+
+        for (let i = 0; i < 30; i++) {
             const date = new Date(today);
             date.setDate(date.getDate() - i);
-            // Random intensity: 0 (no contribution) to 4 (high contribution)
-            // Weighted towards 0 to look realistic
-            const rand = Math.random();
-            let level = 0;
-            if (rand > 0.9) level = 4;
-            else if (rand > 0.8) level = 3;
-            else if (rand > 0.6) level = 2;
-            else if (rand > 0.4) level = 1;
+            const dateString = date.toDateString();
 
-            data.push({ date, level });
+            // Get count for this day
+            const count = attemptsMap[dateString] || 0;
+
+            // Determine level based on count
+            let level = 0;
+            if (count >= 5) level = 4;
+            else if (count >= 3) level = 3;
+            else if (count >= 2) level = 2;
+            else if (count >= 1) level = 1;
+
+            data.push({ date, level, count });
         }
         return data.reverse();
     };
 
-    const data = generateData();
+    const data = processData();
 
     // Color mapping for contribution levels
     const getColor = (level) => {
@@ -37,12 +48,12 @@ const ContributionGraph = () => {
 
     return (
         <div className="w-full overflow-hidden">
-            <div className="flex flex-wrap gap-1 justify-center sm:justify-start">
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 {data.map((day, index) => (
                     <div
                         key={index}
-                        className={`w-3 h-3 rounded-sm ${getColor(day.level)} transition-all hover:scale-125 hover:ring-2 hover:ring-offset-1 hover:ring-indigo-300 cursor-pointer`}
-                        title={`${day.date.toDateString()}: ${day.level === 0 ? 'No' : day.level} contributions`}
+                        className={`w-8 h-8 rounded-md ${getColor(day.level)} transition-all hover:scale-110 hover:ring-2 hover:ring-offset-1 hover:ring-indigo-300 cursor-pointer`}
+                        title={`${day.date.toDateString()}: ${day.count} contributions`}
                     />
                 ))}
             </div>
