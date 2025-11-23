@@ -13,7 +13,7 @@ import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 import TopicsPage from './pages/TopicsPage';
 import CustomTopicPage from './pages/CustomTopicPage';
-
+import Footer from './components/Footer';
 import RecordPage from './pages/RecordPage';
 import ResultsPage from './pages/ResultsPage';
 import LeaderboardPage from './pages/LeaderboardPage';
@@ -70,7 +70,7 @@ function App() {
   const showNav = !user?.is_superadmin;
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
       {/* Main Navigation - Only show on non-admin pages */}
       {showNav && (
         <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -84,12 +84,9 @@ function App() {
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-6">
                 <Link to="/topics" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Topics</Link>
-                <Link to="/learning" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Learning</Link>
-                <Link to="/about" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">About</Link>
-                <Link to="/contact" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Contact</Link>
+                <Link to="/leaderboard" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Leaderboard</Link>
                 {user ? (
                   <>
-                    <Link to="/insights" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Insights</Link>
 
                     {/* Profile Dropdown */}
                     <div className="relative">
@@ -113,6 +110,13 @@ function App() {
                             className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
                           >
                             Profile
+                          </Link>
+                          <Link
+                            to="/insights"
+                            onClick={() => setProfileDropdownOpen(false)}
+                            className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            Insights
                           </Link>
                           <button
                             onClick={() => { handleLogout(); setProfileDropdownOpen(false); }}
@@ -153,12 +157,9 @@ function App() {
             <div className="md:hidden border-t border-gray-200 bg-white">
               <div className="px-4 py-3 space-y-3">
                 <Link to="/topics" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Topics</Link>
-                <Link to="/learning" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Learning</Link>
-                <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">About</Link>
-                <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Contact</Link>
+                <Link to="/leaderboard" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Leaderboard</Link>
                 {user ? (
                   <>
-                    <Link to="/insights" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Insights</Link>
 
                     {/* Mobile Profile Section */}
                     <div className="border-t border-gray-200 pt-3 mt-3">
@@ -167,6 +168,7 @@ function App() {
                         <span>{user.username}</span>
                       </div>
                       <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block pl-8 py-2 text-gray-600 hover:text-indigo-600">Profile</Link>
+                      <Link to="/insights" onClick={() => setMobileMenuOpen(false)} className="block pl-8 py-2 text-gray-600 hover:text-indigo-600">Insights</Link>
                       <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="block w-full text-left pl-8 py-2 text-gray-600 hover:text-indigo-600">Logout</button>
                     </div>
                   </>
@@ -182,7 +184,7 @@ function App() {
         </nav>
       )}
 
-      <main>
+      <main className="flex-grow">
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
@@ -210,6 +212,9 @@ function App() {
           <Route path="/admin/contacts" element={<AdminRoute><AdminContacts user={user} /></AdminRoute>} />
         </Routes>
       </main>
+
+      {/* Footer - Only show on non-admin pages */}
+      {showNav && <Footer />}
     </div>
   );
 }
