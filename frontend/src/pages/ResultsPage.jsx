@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, AlertCircle, Activity, Mic, Award } from 'lucide-react';
 import SEO from '../components/SEO';
+import AchievementUnlockNotification from '../components/AchievementUnlockNotification';
 
 const ResultsPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { results, topic } = location.state || {};
+    const [notifications, setNotifications] = useState(
+        results?.newly_unlocked_achievements || []
+    );
+
+    const handleCloseNotification = (index) => {
+        setNotifications(prev => prev.filter((_, i) => i !== index));
+    };
 
     if (!results) {
         return (
@@ -171,6 +179,15 @@ const ResultsPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Achievement Unlock Notifications */}
+            {notifications.map((achievement, index) => (
+                <AchievementUnlockNotification
+                    key={achievement.key}
+                    achievement={achievement}
+                    onClose={() => handleCloseNotification(index)}
+                />
+            ))}
         </div>
     );
 };
