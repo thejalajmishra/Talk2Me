@@ -18,6 +18,7 @@ import ResultsPage from './pages/ResultsPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 import InsightsPage from './pages/InsightsPage';
+import LearningPage from './pages/LearningPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import GitHubCallback from './pages/GitHubCallback';
@@ -80,6 +81,7 @@ function App() {
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-6">
                 <Link to="/topics" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Topics</Link>
+                <Link to="/learning" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Learning</Link>
                 <Link to="/about" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">About</Link>
                 <Link to="/contact" className="text-gray-500 hover:text-gray-900 font-medium transition-colors">Contact</Link>
                 {user ? (
@@ -117,6 +119,7 @@ function App() {
             <div className="md:hidden border-t border-gray-200 bg-white">
               <div className="px-4 py-3 space-y-3">
                 <Link to="/topics" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Topics</Link>
+                <Link to="/learning" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Learning</Link>
                 <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">About</Link>
                 <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-indigo-600 font-medium py-2">Contact</Link>
                 {user ? (
@@ -149,6 +152,7 @@ function App() {
           <Route path="/results" element={<ResultsPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/insights" element={<InsightsPage user={user} />} />
+          <Route path="/learning" element={<LearningPage />} />
           <Route path="/profile" element={<ProfilePage user={user} onUpdate={handleLogin} />} />
           <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
           <Route path="/signup" element={<SignupPage onLogin={handleLogin} />} />
