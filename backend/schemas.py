@@ -35,6 +35,7 @@ class UserUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
+    profile_picture: Optional[str] = None
 
 class TopicBase(BaseModel):
     title: str

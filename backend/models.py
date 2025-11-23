@@ -13,6 +13,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String, nullable=True)
     is_superadmin = Column(Boolean, default=False)
+    profile_picture = Column(String, nullable=True, default="avatar1")  # Stores avatar identifier
     created_at = Column(DateTime, default=datetime.utcnow)
     
     attempts = relationship("Attempt", back_populates="user")

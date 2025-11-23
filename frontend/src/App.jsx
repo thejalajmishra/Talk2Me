@@ -24,6 +24,7 @@ import LearningPage from './pages/LearningPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import GitHubCallback from './pages/GitHubCallback';
+import { getAvatarPath } from './utils/avatars';
 
 function App() {
   const storedUser = localStorage.getItem('talk2me_user');
@@ -95,9 +96,13 @@ function App() {
                     <div className="relative">
                       <button
                         onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                        className="flex items-center space-x-1 text-gray-500 hover:text-gray-900 font-medium transition-colors p-2 rounded-lg hover:bg-gray-100"
+                        className="flex items-center space-x-1 text-gray-500 hover:text-gray-900 font-medium transition-colors p-1 rounded-lg hover:bg-gray-100"
                       >
-                        <User size={22} />
+                        <img
+                          src={getAvatarPath(user.profile_picture || 'avatar1')}
+                          alt="Profile"
+                          className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
+                        />
                         <ChevronDown size={16} className={`transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
                       </button>
 

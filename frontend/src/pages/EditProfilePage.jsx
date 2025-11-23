@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, User, Mail, Lock, Save, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, Save, Eye, EyeOff, Check } from 'lucide-react';
 import { showAlert } from '../utils/alert';
 import SEO from '../components/SEO';
+import { AVATARS, getAvatarPath } from '../utils/avatars';
 
 const EditProfilePage = ({ user, onUpdate }) => {
     const navigate = useNavigate();
@@ -12,7 +13,8 @@ const EditProfilePage = ({ user, onUpdate }) => {
         username: user?.username || '',
         email: user?.email || '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        profile_picture: user?.profile_picture || 'avatar1'
     });
     const [loading, setLoading] = useState(false);
 
@@ -47,7 +49,8 @@ const EditProfilePage = ({ user, onUpdate }) => {
         try {
             const updateData = {
                 username: formData.username,
-                email: formData.email
+                email: formData.email,
+                profile_picture: formData.profile_picture
             };
 
             // Only include password if it's being changed
@@ -63,10 +66,18 @@ const EditProfilePage = ({ user, onUpdate }) => {
                 }
             );
 
+
             // Update user in localStorage and state
-            const updatedUser = { ...user, ...response.data };
+            const updatedUser = {
+                ...user,
+                username: response.data.username || user.username,
+                email: response.data.email || user.email,
+                profile_picture: formData.profile_picture,
+                token: user.token  // Preserve token
+            };
             localStorage.setItem('talk2me_user', JSON.stringify(updatedUser));
             onUpdate(updatedUser);
+
 
             showAlert('success', 'Profile updated successfully!');
             navigate('/profile');
@@ -126,6 +137,38 @@ const EditProfilePage = ({ user, onUpdate }) => {
                                     required
                                 />
                             </div>
+                        </div>
+
+                        {/* Avatar Selection */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                Profile Picture
+                            </label>
+                            <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+                                {AVATARS.map((avatar) => (
+                                    <button
+                                        key={avatar.id}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, profile_picture: avatar.id })}
+                                        className={`relative aspect-square rounded-full overflow-hidden border-4 transition-all hover:scale-105 ${formData.profile_picture === avatar.id
+                                            ? 'border-indigo-600 ring-4 ring-indigo-100'
+                                            : 'border-gray-200 hover:border-indigo-300'
+                                            }`}
+                                    >
+                                        <img
+                                            src={avatar.path}
+                                            alt={avatar.name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        {formData.profile_picture === avatar.id && (
+                                            <div className="absolute inset-0 bg-indigo-600/20 flex items-center justify-center">
+                                                <Check className="w-8 h-8 text-white drop-shadow-lg" strokeWidth={3} />
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">Choose an avatar for your profile</p>
                         </div>
 
                         {/* Email Field */}
