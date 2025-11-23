@@ -15,7 +15,9 @@ const RecordPage = () => {
     const [topic, setTopic] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     // Get current user from localStorage for analysis request
+    // Get current user from localStorage for analysis request
     const user = React.useMemo(() => JSON.parse(localStorage.getItem('talk2me_user')), []);
+    const [spokenText, setSpokenText] = useState('');
 
     useEffect(() => {
         // Redirect if not logged in and not guest
@@ -40,6 +42,7 @@ const RecordPage = () => {
     }, [topicId, user, isGuest, navigate]);
 
     const handleRecordingComplete = async (audioBlob) => {
+        setSpokenText(''); // Reset for next recording
         setIsAnalyzing(true);
 
         // Create FormData
@@ -68,6 +71,40 @@ const RecordPage = () => {
             showAlert('error', errorMessage);
             setIsAnalyzing(false);
         }
+    };
+
+    const renderHighlightedDescription = () => {
+        if (!topic?.description) return null;
+
+        const targetWords = topic.description.split(/\s+/);
+        const spokenWords = spokenText.toLowerCase().split(/\s+/);
+
+        let spokenIndex = 0;
+
+        return (
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                {targetWords.map((word, idx) => {
+                    const cleanTarget = word.replace(/[^\w]/g, '').toLowerCase();
+                    let isMatch = false;
+
+                    // Look ahead window of 10 words
+                    for (let i = spokenIndex; i < Math.min(spokenIndex + 10, spokenWords.length); i++) {
+                        const cleanSpoken = spokenWords[i].replace(/[^\w]/g, '');
+                        if (cleanSpoken && cleanSpoken === cleanTarget) {
+                            isMatch = true;
+                            spokenIndex = i + 1;
+                            break;
+                        }
+                    }
+
+                    return (
+                        <span key={idx} className={isMatch ? "text-green-600 font-bold transition-all duration-300" : "transition-all duration-300"}>
+                            {word}{' '}
+                        </span>
+                    );
+                })}
+            </p>
+        );
     };
 
     if (!topic) return <div className="p-10 text-center">Loading...</div>;
@@ -101,9 +138,7 @@ const RecordPage = () => {
 
                 <div className="text-center mb-12">
                     <h1 className="text-3xl font-bold text-gray-900 mb-4">{topic.title}</h1>
-                    <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                        {topic.description}
-                    </p>
+                    {renderHighlightedDescription()}
                 </div>
 
                 {isAnalyzing ? (
@@ -113,7 +148,11 @@ const RecordPage = () => {
                         <p className="text-gray-500 mt-2">Checking pace, clarity, and tone.</p>
                     </div>
                 ) : (
-                    <Recorder onRecordingComplete={handleRecordingComplete} />
+                    <Recorder
+                        onRecordingComplete={handleRecordingComplete}
+                        timeLimit={topic.time_limit}
+                        onRealTimeTranscript={setSpokenText}
+                    />
                 )}
             </div>
         </div>

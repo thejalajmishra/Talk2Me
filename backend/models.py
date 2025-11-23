@@ -35,6 +35,7 @@ class Topic(Base):
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
     difficulty = Column(String) # Easy, Medium, Hard, Custom
     description = Column(Text, nullable=True)
+    time_limit = Column(Integer, default=60)  # Time limit in seconds
     is_custom = Column(Boolean, default=False)  # Flag for user-created topics
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)  # User who created it
     

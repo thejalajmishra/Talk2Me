@@ -3,7 +3,7 @@ import shutil
 import random
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
-from models import Attempt, User
+from models import Attempt, User, Topic
 from dotenv import load_dotenv
 from openai import OpenAI
 from .audio import analyze_audio_features
@@ -59,14 +59,40 @@ async def process_attempt(file: UploadFile, topic_id: int, user_id: int, db: Ses
         fillers = ["um", "uh", "like", "you know", "so", "actually", "basically", "literally"]
         manual_filler_count = sum(transcript.lower().count(f) for f in fillers)
         
-        feedback_result = generate_feedback(client, transcript, duration, wpm, manual_filler_count)
+        # Diff Analysis (Target vs Spoken)
+        diff_result = []
+        topic = db.query(Topic).filter(Topic.id == topic_id).first()
+        target_text = topic.description if topic else ""
+        
+        if target_text:
+            import difflib
+            target_words = target_text.split()
+            spoken_words = transcript.split()
+            
+            # Case-insensitive comparison
+            matcher = difflib.SequenceMatcher(None, [w.lower() for w in target_words], [w.lower() for w in spoken_words])
+            
+            for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+                segment_text = " ".join(target_words[i1:i2])
+                if not segment_text: continue
+                
+                if tag == 'equal':
+                    diff_result.append({"status": "matched", "text": segment_text})
+                elif tag == 'replace' or tag == 'delete':
+                    diff_result.append({"status": "missed", "text": segment_text})
+        
+        
+        feedback_result = generate_feedback(client, transcript, duration, wpm, manual_filler_count, target_text)
         
         # Extract results
         filler_count = feedback_result.get("filler_count", manual_filler_count)
         overall_score = feedback_result.get("score", 0)
+        content_match_score = feedback_result.get("content_match_score", 0)
         feedback_data = {
             "tone": feedback_result.get("tone", "Unknown"),
-            "improvement_plan": feedback_result.get("improvement_plan", [])
+            "improvement_plan": feedback_result.get("improvement_plan", []),
+            "diff_analysis": diff_result,
+            "content_match_score": content_match_score
         }
 
         # 5. Save to DB (Only for logged-in users)
@@ -76,9 +102,22 @@ async def process_attempt(file: UploadFile, topic_id: int, user_id: int, db: Ses
             if not user:
                 return {"error": "User not found"}
 
+            # Save audio permanently
+            import uuid
+            from datetime import datetime
+            
+            uploads_dir = "uploads"
+            os.makedirs(uploads_dir, exist_ok=True)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            unique_id = str(uuid.uuid4())[:8]
+            audio_filename = f"audio_{timestamp}_{unique_id}.webm"
+            audio_filepath = os.path.join(uploads_dir, audio_filename)
+            shutil.copy(temp_filename, audio_filepath)
+
             attempt = Attempt(
                 user_id=user.id,
                 topic_id=topic_id,
+                audio_url=audio_filename,
                 transcript=transcript,
                 wpm=wpm,
                 filler_count=filler_count,

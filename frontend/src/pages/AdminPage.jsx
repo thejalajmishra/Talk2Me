@@ -13,7 +13,8 @@ const AdminPage = ({ user }) => {
         title: '',
         category_id: null,
         difficulty: 'Medium',
-        description: ''
+        description: '',
+        time_limit: 60
     });
 
     // Categories state
@@ -89,7 +90,7 @@ const AdminPage = ({ user }) => {
             await axios.post('http://localhost:8000/topics', newTopic, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
-            setNewTopic({ title: '', category_id: null, difficulty: 'Medium', description: '' });
+            setNewTopic({ title: '', category_id: null, difficulty: 'Medium', description: '', time_limit: 60 });
             fetchTopics();
         } catch (error) {
             console.error("Failed to create topic", error);
@@ -296,6 +297,14 @@ const AdminPage = ({ user }) => {
                                         <option value="Medium">Medium</option>
                                         <option value="Hard">Hard</option>
                                     </select>
+                                    <input
+                                        type="number"
+                                        placeholder="Time Limit (seconds)"
+                                        value={newTopic.time_limit}
+                                        onChange={(e) => setNewTopic({ ...newTopic, time_limit: parseInt(e.target.value) })}
+                                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                        min="10"
+                                    />
                                 </div>
                                 <textarea
                                     placeholder="Description (optional)"
@@ -329,6 +338,9 @@ const AdminPage = ({ user }) => {
                                                         'bg-red-100 text-red-700'
                                                     }`}>
                                                     {topic.difficulty}
+                                                </span>
+                                                <span className="text-xs text-gray-500 flex items-center">
+                                                    ⏱ {topic.time_limit || 60}s
                                                 </span>
                                             </div>
                                         </div>
@@ -496,8 +508,8 @@ const AdminPage = ({ user }) => {
                                                 <div>
                                                     <span className="text-gray-500">Score:</span>
                                                     <span className={`ml-1 font-medium ${attempt.score >= 80 ? 'text-green-600' :
-                                                            attempt.score >= 60 ? 'text-yellow-600' :
-                                                                'text-red-600'
+                                                        attempt.score >= 60 ? 'text-yellow-600' :
+                                                            'text-red-600'
                                                         }`}>{attempt.score || 'N/A'}</span>
                                                 </div>
                                                 <div>
@@ -506,6 +518,13 @@ const AdminPage = ({ user }) => {
                                                         {new Date(attempt.created_at).toLocaleDateString()}
                                                     </span>
                                                 </div>
+                                            </div>
+                                            <div className="mt-3">
+                                                {attempt.audio_url ? (
+                                                    <audio controls src={`http://localhost:8000/uploads/${attempt.audio_url}`} className="h-8 w-full max-w-md" />
+                                                ) : (
+                                                    <span className="text-xs text-gray-400 italic">Audio not available</span>
+                                                )}
                                             </div>
                                             {attempt.transcript && (
                                                 <p className="text-xs text-gray-600 mt-2 line-clamp-2">
@@ -526,7 +545,7 @@ const AdminPage = ({ user }) => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 
