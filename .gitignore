@@ -9,4 +9,5 @@ talk2me.db
 backend/talk2me.db
 backend/uploads/
 backend/ai_engine/temp_*.webm
+.venv/
 

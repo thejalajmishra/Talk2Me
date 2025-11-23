@@ -25,6 +25,9 @@ from services.attempts import get_all_attempts, delete_attempt, get_attempts_by_
 from ai_engine.pipeline import process_attempt
 from services.leaderboard import get_leaderboard
 from services.contact import create_contact_message, get_all_contact_messages
+from services.achievements import (
+    get_user_achievements, check_and_unlock_achievements, unlock_hello_speaker
+)
 from auth import get_password_hash, verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from dependencies import get_current_user, get_current_admin
 from datetime import timedelta
@@ -82,6 +85,9 @@ def signup(user_data: UserSignup, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    
+    # Unlock "Hello Speaker" achievement
+    unlock_hello_speaker(db, new_user.id)
     
     # Create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -164,6 +170,9 @@ def google_auth(auth_request: GoogleAuthRequest, db: Session = Depends(get_db)):
         db.add(user)
         db.commit()
         db.refresh(user)
+        
+        # Unlock "Hello Speaker" achievement for new users
+        unlock_hello_speaker(db, user.id)
     
     # Create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -232,6 +241,9 @@ def github_auth(auth_request: GitHubAuthRequest, db: Session = Depends(get_db)):
         db.add(user)
         db.commit()
         db.refresh(user)
+        
+        # Unlock "Hello Speaker" achievement for new users
+        unlock_hello_speaker(db, user.id)
     
     # Create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -360,11 +372,17 @@ async def analyze_speech(
     db: Session = Depends(get_db)
 ):
     result = await process_attempt(audio, topic_id, user_id, db)
+    
+    # Check and unlock achievements after attempt
+    if user_id:
+        newly_unlocked = check_and_unlock_achievements(db, user_id)
+        result["newly_unlocked_achievements"] = newly_unlocked
+    
     return result
 
 @app.get("/leaderboard", response_model=List[dict])
-def read_leaderboard(db: Session = Depends(get_db)):
-    return get_leaderboard(db)
+def read_leaderboard(type: str = "top", db: Session = Depends(get_db)):
+    return get_leaderboard(db, leaderboard_type=type)
 
 # Category endpoints
 @app.get("/categories", response_model=List[Category])
@@ -453,4 +471,16 @@ def submit_contact(contact_data: ContactMessageCreate, db: Session = Depends(get
 @app.get("/admin/contacts", response_model=List[ContactMessageResponse])
 def read_contacts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_admin: User = Depends(get_current_admin)):
     return get_all_contact_messages(db, skip, limit)
+
+# Achievement endpoints
+@app.get("/users/me/achievements")
+def get_my_achievements(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Get all achievements with unlock status for the current user."""
+    return get_user_achievements(db, current_user.id)
+
+@app.post("/users/me/achievements/check")
+def check_my_achievements(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Manually check and unlock achievements for the current user."""
+    newly_unlocked = check_and_unlock_achievements(db, current_user.id)
+    return {"newly_unlocked": newly_unlocked}
 

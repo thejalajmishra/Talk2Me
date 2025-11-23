@@ -201,6 +201,7 @@ const ProfilePage = ({ user, onUpdate }) => {
         date: new Date(a.created_at).toLocaleDateString()
     }));
 
+
     // Recent Activity (reverse chronological)
     const recentActivity = [...attempts].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
 
