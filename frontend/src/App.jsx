@@ -20,6 +20,7 @@ import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import GitHubCallback from './pages/GitHubCallback';
+import OnboardingPage from './pages/OnboardingPage';
 
 function App() {
   const storedUser = localStorage.getItem('talk2me_user');
@@ -40,6 +41,10 @@ function App() {
     localStorage.setItem('talk2me_user', JSON.stringify(userData));
     if (userData.is_superadmin) {
       navigate('/admin');
+    } else if (!userData.onboarding_completed) {
+      navigate('/onboarding');
+    } else {
+      navigate('/topics');
     }
   };
 
@@ -149,6 +154,7 @@ function App() {
           <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
           <Route path="/signup" element={<SignupPage onLogin={handleLogin} />} />
           <Route path="/auth/github/callback" element={<GitHubCallback />} />
+          <Route path="/onboarding" element={<OnboardingPage onLogin={handleLogin} />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminRoute><AdminDashboard user={user} /></AdminRoute>} />

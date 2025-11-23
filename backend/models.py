@@ -14,6 +14,8 @@ class User(Base):
     hashed_password = Column(String, nullable=True)
     is_superadmin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    onboarding_completed = Column(Boolean, default=False)
+    onboarding_data = Column(JSON, nullable=True)
     
     attempts = relationship("Attempt", back_populates="user")
 
